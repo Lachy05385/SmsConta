@@ -1,0 +1,58 @@
+# ========================================
+# INVESTIGACIÓN Y SCRIPTS DE PRUEBA (NO SUBEN)
+# ========================================
+investigacion/
+otros/
+Transferencias modelo/
+procesar_xml/
+test_*.py
+testing.py
+empresa_id_null.py
+database_t.py
+cargar_CSV.py
+*.bak
+*.log
+landing.html
+landing2.html
+crear_admin.py
+test_env/
+# ========================================
+# PYTHON CACHE (SIEMPRE IGNORAR)
+# ========================================
+__pycache__/
+*.pyc
+<<<<<<< HEAD
+test_turso.py
+test_turso_alchemy.py
+test_api.py
+=======
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+venv/
+env/
+.venv/
+*.env
+# ========================================
+# BASE DE DATOS
+# ========================================
+*.db
+*.sqlite
+*.sqlite3
+
+# ========================================
+# ARCHIVOS DE CONFIGURACIÓN LOCAL
+# ========================================
+.env
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ========================================
+# ⚠️ IMPORTANTE: NO IGNORAR HTML
+# ========================================
+# ¡NO agregues *.html ni templates/ aquí!
+# Los HTML son parte del código de producción
+>>>>>>> c2bf88f20e7dfa0007781cc4baa18561862ab5ad

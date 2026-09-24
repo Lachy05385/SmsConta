@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✅ Confirmar Transferencias - Contador</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header h1 {
+            color: #1e3c72;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info span {
+            color: #666;
+        }
+
+        .user-info strong {
+            color: #1e3c72;
+        }
+
+        .btn-dashboard {
+            background: #718096;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-dashboard:hover {
+            background: #4a5568;
+            transform: translateY(-2px);
+        }
+
+        .logout-btn {
+            background: #f56565;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #e53e3e;
+            transform: translateY(-2px);
+        }
+
+        /* Stats Cards */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card.pendientes {
+            border-left: 4px solid #ed8936;
+        }
+        .stat-card.confirmadas {
+            border-left: 4px solid #10b499;
+        }
+        .stat-card.total {
+            border-left: 4px solid #1e3c72;
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Filtros */
+        .filters-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .filters-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .filter-group input, .filter-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .filter-group input:focus, .filter-group select:focus {
+            outline: none;
+            border-color: #1e3c72;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            background: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            color: #666;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }
+
+        .tab-btn.pendientes.active {
+            background: #ed8936;
+        }
+        .tab-btn.confirmadas.active {
+            background: #48bb78;
+        }
+
+        /* Tabla */
+        .transactions-table {
+            background: white;
+            border-radius: 15px;
+            overflow-x: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .badge-pendiente {
+            background: #feebc8;
+            color: #c05621;
+        }
+
+        .badge-confirmada {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .btn-confirmar {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-confirmar:hover {
+            background: #38a169;
+            transform: scale(1.05);
+        }
+
+        .btn-confirmar:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+        }
+
+        .btn-filter {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-filter:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-clear {
+            background: #718096;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #1e3c72;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #1e3c72;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .mensaje-flotante {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 1000;
+            animation: fadeInOut 3s ease-in-out;
+        }
+
+        .mensaje-exito {
+            background: #48bb78;
+            color: white;
+        }
+
+        .mensaje-error {
+            background: #f56565;
+            color: white;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(20px); }
+            15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(20px); }
+        }
+
+        @media (max-width: 768px) {
+            .filters-row {
+                flex-direction: column;
+            }
+            th, td {
+                font-size: 0.85em;
+            }
+        }
+        .btn-revertir {
+            background: #ed8936;
+            color: white;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-revertir:hover {
+            background: #dd6b20;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <span>✅</span>
+                <span>Confirmar Transferencias</span>
+                <span style="font-size: 0.6em; color: #666;">(Contador)</span>
+            </h1>
+            <div class="user-info">
+                <span>👤 <strong id="userName">Cargando...</strong></span>
+                <a href="/dashboard" class="btn-dashboard">📊 Dashboard</a>
+                <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-container">
+            <div class="stat-card pendientes">
+                <h3>⏳ Pendientes por Confirmar</h3>
+                <div class="value" id="totalPendientes">-</div>
+            </div>
+            <div class="stat-card confirmadas">
+                <h3>✅ Confirmadas</h3>
+                <div class="value" id="totalConfirmadas">-</div>
+            </div>
+            <div class="stat-card total">
+                <h3>📊 Total Transferencias</h3>
+                <div class="value" id="totalTransacciones">-</div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filters-section">
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label>📅 Fecha desde</label>
+                    <input type="text" id="fechaInicio" placeholder="DD/MM/YYYY" class="datepicker">
+                </div>
+                <div class="filter-group">
+                    <label>📅 Fecha hasta</label>
+                    <input type="text" id="fechaFin" placeholder="DD/MM/YYYY" class="datepicker">
+                </div>
+                <div class="filter-group">
+                    <label>🏦 Banco</label>
+                    <input type="text" id="filtroBanco" placeholder="Todos">
+                </div>
+                <div class="filter-group">
+                    <label>🔍 Buscar</label>
+                    <input type="text" id="searchInput" placeholder="N° Transacción, beneficiario...">
+                </div>
+                <div class="filter-group">
+                    <label>👤 Filtrar por Usuario</label>
+                    <select id="filtroUsuario">
+                        <option value="">Todos los usuarios</option>
+                    </select>
+                </div>
+                <button class="btn-filter" onclick="aplicarFiltros()">🔍 Aplicar Filtros</button>
+                <button class="btn-filter btn-clear" onclick="limpiarFiltros()">🗑️ Limpiar</button>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn pendientes active" onclick="cambiarTab('pendientes')">
+                ⏳ Pendientes
+            </button>
+            <button class="tab-btn confirmadas" onclick="cambiarTab('confirmadas')">
+                ✅ Confirmadas
+            </button>
+        </div>
+
+        <!-- Tabla -->
+        <div class="transactions-table">
+            <div id="loadingState" style="display: none;">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Cargando transacciones...</p>
+                </div>
+            </div>
+            <div id="tableContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        //const BASE_URL = 'http://localhost:8000';
+        // ========== CONFIGURACIÓN ==========
+        const BASE_URL = window.location.origin;
+        let token = null;
+        let user = null;
+        let tabActual = 'pendientes';   // 'pendientes' o 'confirmadas'
+        let transaccionesGlobal = [];    // Todas las transacciones (sin filtrar por tab)
+
+        // ========== AUTENTICACIÓN ==========
+        function getToken() {
+            const params = new URLSearchParams(window.location.search);
+            const urlToken = params.get('token');
+            if (urlToken) {
+                localStorage.setItem('token', urlToken);
+                return urlToken;
+            }const BASE_URL = window.location.origin;
+            return localStorage.getItem('token');
+        }
+
+        async function getUserProfile() {
+            token = getToken();
+            if (!token) {
+                window.location.href = '/test';
+                return null;
+            }
+            try {
+                const response = await fetch(`${BASE_URL}/perfil`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    user = await response.json();
+                    document.getElementById('userName').textContent = `${user.nombre} ${user.apellido}`;
+                    return user;
+                } else {
+                    localStorage.removeItem('token');
+                    window.location.href = '/test';
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                window.location.href = '/test';
+                return null;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/test';
+        }
+
+        // ========== DATE PICKERS ==========
+        function initDatePickers() {
+            flatpickr(".datepicker", {
+                locale: "es",
+                dateFormat: "d/m/Y",
+                allowInput: true,
+                altInput: true,
+                altFormat: "d/m/Y"
+            });
+        }
+
+        // ========== CARGAR USUARIOS (SELECT) ==========
+        async function cargarUsuariosEmpresa() {
+            try {
+                const response = await fetch(`${BASE_URL}/empresa/usuarios`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const usuarios = await response.json();
+                    const selectUsuario = document.getElementById('filtroUsuario');
+                    if (selectUsuario) {
+                        selectUsuario.innerHTML = '<option value="">📋 Todos los usuarios</option>';
+                        for (const u of usuarios) {
+                            selectUsuario.innerHTML += `<option value="${u.id}">👤 ${u.nombre} ${u.apellido} (${u.email})</option>`;
+                        }
+                        // Agregar evento change para recargar transacciones al cambiar usuario
+                        selectUsuario.addEventListener('change', () => cargarTransacciones());
+                        console.log('✅ Usuarios cargados:', usuarios.length);
+                    }
+                }
+            } catch (error) {
+                console.error('Error cargando usuarios:', error);
+            }
+        }
+
+        // ========== CARGAR TRANSACCIONES (ÚNICA FUNCIÓN) ==========
+        async function cargarTransacciones() {
+            if (!token) return;
+
+            // Obtener valores de los filtros
+            const usuarioId = document.getElementById('filtroUsuario')?.value || '';
+            const fechaInicio = document.getElementById('fechaInicio')?.value || '';
+            const fechaFin = document.getElementById('fechaFin')?.value || '';
+            const filtroBanco = document.getElementById('filtroBanco')?.value || '';
+            const searchInput = document.getElementById('searchInput')?.value || '';
+
+            // Mostrar loading
+            const loadingDiv = document.getElementById('loadingState');
+            const tableContainer = document.getElementById('tableContainer');
+            if (loadingDiv) loadingDiv.style.display = 'block';
+            if (tableContainer) tableContainer.innerHTML = '';
+
+            try {
+                // Construir URL con endpoint para contador (filtra por usuario y empresa automáticamente)
+                let url = `${BASE_URL}/transacciones/empresa?skip=0&limit=500`;
+                
+                if (usuarioId) url += `&usuario_id=${usuarioId}`;
+                if (fechaInicio) url += `&fecha_inicio=${fechaInicio}`;
+                if (fechaFin) url += `&fecha_fin=${fechaFin}`;
+                
+                // Si hay búsqueda por texto, usar el endpoint de búsqueda (no soporta usuario_id directamente, haremos filtro en cliente)
+                // Nota: El endpoint /transacciones/buscar no incluye empresa/usuario, por simplicidad usamos /empresa y filtramos en cliente.
+                // Si el backend tiene búsqueda con contexto de empresa, se puede ajustar.
+                
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) throw new Error('Error al cargar transacciones');
+                
+                let transacciones = await response.json();
+                console.log('📊 Transacciones recibidas:', transacciones.length);
+                
+                // Aplicar filtros adicionales en cliente (banco y búsqueda)
+                if (filtroBanco) {
+                    transacciones = transacciones.filter(t => 
+                        t.banco && t.banco.toLowerCase().includes(filtroBanco.toLowerCase())
+                    );
+                }
+                if (searchInput) {
+                    const term = searchInput.toLowerCase();
+                    transacciones = transacciones.filter(t => 
+                        (t.numero_transaccion && t.numero_transaccion.toLowerCase().includes(term)) ||
+                        (t.beneficiario && t.beneficiario.toLowerCase().includes(term)) ||
+                        (t.ordenante && t.ordenante.toLowerCase().includes(term))
+                    );
+                }
+                
+                // Ordenar por fecha descendente
+                transacciones.sort((a, b) => {
+                    const fechaA = a.fecha ? a.fecha.split('/').reverse().join('-') : '';
+                    const fechaB = b.fecha ? b.fecha.split('/').reverse().join('-') : '';
+                    return fechaB.localeCompare(fechaA);
+                });
+                
+                transaccionesGlobal = transacciones;
+                actualizarEstadisticas();
+                renderizarTabla();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                if (tableContainer) {
+                    tableContainer.innerHTML = `<div class="empty-message">❌ Error: ${error.message}</div>`;
+                }
+            } finally {
+                if (loadingDiv) loadingDiv.style.display = 'none';
+            }
+        }
+
+        // ========== ACTUALIZAR TARJETAS DE ESTADÍSTICAS ==========
+        function actualizarEstadisticas() {
+            const pendientes = transaccionesGlobal.filter(t => t.estado && t.estado.toUpperCase() === 'PENDIENTE');
+            const confirmadas = transaccionesGlobal.filter(t => t.estado && t.estado.toUpperCase() === 'CONFIRMADA');
+            document.getElementById('totalPendientes').textContent = pendientes.length;
+            document.getElementById('totalConfirmadas').textContent = confirmadas.length;
+            document.getElementById('totalTransacciones').textContent = transaccionesGlobal.length;
+        }
+
+        // ========== RENDERIZAR TABLA SEGÚN TAB ACTIVA (pendientes/confirmadas) ==========
+        function renderizarTabla() {
+            const tableContainer = document.getElementById('tableContainer');
+            
+            let transaccionesFiltradas = transaccionesGlobal;
+            if (tabActual === 'pendientes') {
+                transaccionesFiltradas = transaccionesGlobal.filter(t => t.estado && t.estado.toUpperCase() === 'PENDIENTE');
+            } else {
+                transaccionesFiltradas = transaccionesGlobal.filter(t => t.estado && t.estado.toUpperCase() === 'CONFIRMADA');
+            }
+            
+            if (transaccionesFiltradas.length === 0) {
+                tableContainer.innerHTML = `<div class="empty-message">📭 No hay transacciones ${tabActual === 'pendientes' ? 'pendientes' : 'confirmadas'}</div>`;
+                return;
+            }
+            
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>N° Transacción</th>
+                            <th>Usuario que Procesó</th>
+                            <th>Beneficiario</th>
+                            <th>Ordenante</th>
+                            <th>Monto</th>
+                            <th>Moneda</th>
+                            <th>Banco</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            for (const t of transaccionesFiltradas) {
+                const estadoMayus = (t.estado || '').toUpperCase();
+                const estadoClass = estadoMayus === 'PENDIENTE' ? 'badge-pendiente' : 'badge-confirmada';
+                const usuarioNombre = t.usuario ? `${t.usuario.nombre} ${t.usuario.apellido}` : (t.usuario_id || '-');
+                
+                html += `
+                    <tr data-id="${t.id}">
+                        <td>${t.fecha || '-'}</td>
+                        <td><strong>${t.numero_transaccion || '-'}</strong></td>
+                        <td>${usuarioNombre}</td>
+                        <td>${t.beneficiario || '-'}</td>
+                        <td>${t.ordenante || '-'}</td>
+                        <td><strong>${(t.monto || 0).toFixed(2)}</strong> ${t.moneda || ''}</td>
+                        <td>${t.moneda || '-'}</td>
+                        <td>${t.banco || '-'}</td>
+                        <td><span class="badge ${estadoClass}">${estadoMayus === 'PENDIENTE' ? 'PENDIENTE' : 'CONFIRMADA'}</span></td>
+                        <td>
+                            ${estadoMayus === 'PENDIENTE' ? 
+                                `<button class="btn-confirmar" onclick="confirmarTransaccion(${t.id})">✅ Confirmar</button>` : 
+                                `<button class="btn-revertir" onclick="revertirTransaccion(${t.id})" style="background:#ed8936; color:white; border:none; padding:6px 15px; border-radius:6px; cursor:pointer;">↩️ Revertir a Pendiente</button>`
+                            }
+                        </td>
+                    </tr>
+                `;
+            }
+            
+            html += `
+                    </tbody>
+                </table>
+            `;
+            tableContainer.innerHTML = html;
+        }
+
+        // ========== CONFIRMAR TRANSACCIÓN ==========
+        async function confirmarTransaccion(id) {
+            if (!confirm('¿Confirmar que esta transacción ya aparece en el estado de cuenta?')) return;
+            try {
+                const response = await fetch(`${BASE_URL}/transacciones/${id}/confirmar`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (response.ok) {
+                    mostrarMensaje('✅ Transacción confirmada correctamente', 'exito');
+                    // Actualizar localmente
+                    const transaccion = transaccionesGlobal.find(t => t.id === id);
+                    if (transaccion) transaccion.estado = 'CONFIRMADA';
+                    actualizarEstadisticas();
+                    renderizarTabla();
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Error al confirmar');
+                }
+            } catch (error) {
+                mostrarMensaje(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // ========== REVERTIR TRANSACCIÓN ==========
+        async function revertirTransaccion(id) {
+            if (!confirm('¿Revertir esta transacción a PENDIENTE? Esto significa que aún no aparece en el estado de cuenta.')) return;
+            try {
+                const response = await fetch(`${BASE_URL}/transacciones/${id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ estado: 'pendiente' })
+                });
+                if (response.ok) {
+                    mostrarMensaje('✅ Transacción revertida a PENDIENTE', 'exito');
+                    const transaccion = transaccionesGlobal.find(t => t.id === id);
+                    if (transaccion) transaccion.estado = 'PENDIENTE';
+                    actualizarEstadisticas();
+                    renderizarTabla();
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Error al revertir');
+                }
+            } catch (error) {
+                mostrarMensaje(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // ========== CAMBIAR TAB (PENDIENTES / CONFIRMADAS) ==========
+        function cambiarTab(tab) {
+            tabActual = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            if (tab === 'pendientes') {
+                document.querySelector('.tab-btn.pendientes').classList.add('active');
+            } else {
+                document.querySelector('.tab-btn.confirmadas').classList.add('active');
+            }
+            renderizarTabla(); // Solo cambia la vista, no recarga datos
+        }
+
+        // ========== APLICAR FILTROS (desde botón) ==========
+        function aplicarFiltros() {
+            cargarTransacciones(); // Recarga desde el backend con todos los filtros actuales (incluyendo usuario)
+        }
+
+        function limpiarFiltros() {
+            document.getElementById('fechaInicio').value = '';
+            document.getElementById('fechaFin').value = '';
+            document.getElementById('filtroBanco').value = '';
+            document.getElementById('searchInput').value = '';
+            // No limpiamos el usuario seleccionado para no confundir, pero se puede hacer si se desea:
+            // document.getElementById('filtroUsuario').value = '';
+            cargarTransacciones();
+        }
+
+        function mostrarMensaje(mensaje, tipo) {
+            const msgDiv = document.createElement('div');
+            msgDiv.textContent = mensaje;
+            msgDiv.className = `mensaje-flotante mensaje-${tipo === 'exito' ? 'exito' : 'error'}`;
+            document.body.appendChild(msgDiv);
+            setTimeout(() => msgDiv.remove(), 3000);
+        }
+
+        // ========== INICIALIZACIÓN ==========
+        async function init() {
+            await getUserProfile();
+            if (user) {
+                initDatePickers();
+                await cargarUsuariosEmpresa();  // Llena el select y asigna evento change
+                await cargarTransacciones();     // Carga las transacciones (sin filtro de usuario inicialmente)
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

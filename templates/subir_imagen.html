@@ -1,0 +1,371 @@
+<!-- templates/subir_imagen.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📸 Subir Captura de Transferencia</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 1.5em;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .upload-area {
+            border: 2px dashed #cbd5e0;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .upload-area.drag-over {
+            border-color: #667eea;
+            background: #edf2f7;
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            margin: 20px 0;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .form-group select, .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .tipo-selector {
+            display: flex;
+            gap: 15px;
+        }
+
+        .tipo-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tipo-btn.selected {
+            border-color: #667eea;
+            background: #667eea20;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result.success {
+            background: #c6f6d5;
+            color: #22543d;
+            display: block;
+        }
+
+        .result.error {
+            background: #fed7d7;
+            color: #742a2a;
+            display: block;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            
+            <h1>📸 Subir Captura de Transferencia</h1>
+            <a href="/dashboard" style="color: #667eea;">📊 Volver</a>
+        </div>
+
+        <div class="card">
+            <div class="upload-area" id="uploadArea">
+                <p><strong>Eliminar resto de la imagen que no contiene Datos<br>facilita el procesamiento...</p>
+                <div class="upload-icon">📷</div>
+                
+                <p>Arrastra una imagen o haz clic para seleccionar</p>
+                <small style="color: #999;">Formatos: JPG, PNG, GIF (máx. 5MB)</small>
+                <input type="file" id="fileInput" accept="image/*" style="display: none;">
+            </div>
+
+            <img id="preview" class="preview-image" alt="Vista previa">
+
+            <div class="form-group">
+                <label>Tipo de Transferencia</label>
+                <div class="tipo-selector">
+                    <div class="tipo-btn" data-tipo="recibida" onclick="seleccionarTipo('recibida')">📥 Recibida</div>
+                    <div class="tipo-btn" data-tipo="enviada" onclick="seleccionarTipo('enviada')">📤 Enviada</div>
+                </div>
+                <input type="hidden" id="tipo" value="recibida">
+            </div>
+
+            <div class="form-group">
+                <label>Descripción (opcional)</label>
+                <input type="text" id="descripcion" placeholder="Ej: Pago de servicios">
+            </div>
+
+            <button class="btn-submit" id="submitBtn" onclick="procesarImagen()">
+                🔍 Procesar Imagen y Crear Transacción
+            </button>
+
+            <div id="result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        //const BASE_URL = 'http://localhost:8000';
+        const BASE_URL = window.location.origin;
+        let token = null;
+        let archivoSeleccionado = null;
+
+        function getToken() {
+            const params = new URLSearchParams(window.location.search);
+            const urlToken = params.get('token');
+            if (urlToken) {
+                localStorage.setItem('token', urlToken);
+                return urlToken;
+            }
+            return localStorage.getItem('token');
+        }
+
+        function seleccionarTipo(tipo) {
+            document.getElementById('tipo').value = tipo;
+            document.querySelectorAll('.tipo-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.querySelector(`.tipo-btn[data-tipo="${tipo}"]`).classList.add('selected');
+        }
+
+        // Configurar drag & drop
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                archivoSeleccionado = files[0];
+                previewImage(archivoSeleccionado);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                archivoSeleccionado = e.target.files[0];
+                previewImage(archivoSeleccionado);
+            }
+        });
+
+        function previewImage(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const preview = document.getElementById('preview');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                uploadArea.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function procesarImagen() {
+            if (!archivoSeleccionado) {
+                mostrarResultado(false, 'Por favor selecciona una imagen');
+                return;
+            }
+
+            token = getToken();
+            if (!token) {
+                window.location.href = '/test';
+                return;
+            }
+
+            const tipo = document.getElementById('tipo').value;
+            const descripcion = document.getElementById('descripcion').value;
+            const submitBtn = document.getElementById('submitBtn');
+
+            // Crear FormData para enviar la imagen
+            const formData = new FormData();
+            formData.append('imagen', archivoSeleccionado);
+            formData.append('tipo', tipo);
+            formData.append('token', token);
+            if (descripcion) formData.append('descripcion', descripcion);
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading"></span> Procesando imagen...';
+
+            try {
+                const response = await fetch(`${BASE_URL}/transacciones/from-image`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    mostrarResultado(true, 'Transacción creada exitosamente!', data);
+                    
+                    // Limpiar para nueva imagen
+                    archivoSeleccionado = null;
+                    document.getElementById('preview').style.display = 'none';
+                    uploadArea.style.display = 'block';
+                    document.getElementById('descripcion').value = '';
+                    fileInput.value = '';
+                } else {
+                    let errorMsg = data.detail;
+                    if (Array.isArray(data.detail)) {
+                        errorMsg = data.detail.map(e => e.msg).join(', ');
+                    }
+                    mostrarResultado(false, errorMsg || 'Error al procesar');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarResultado(false, `Error de conexión: ${error.message}`);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '🔍 Procesar Imagen y Crear Transacción';
+            }
+        }
+
+        function mostrarResultado(exito, mensaje, data = null) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = `result ${exito ? 'success' : 'error'}`;
+            
+            if (exito && data) {
+                resultDiv.innerHTML = `
+                    <strong>✅ ${mensaje}</strong><br>
+                    <div style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.05); border-radius: 8px;">
+                        <strong>ID:</strong> ${data.id}<br>
+                        <strong>N° Transacción:</strong> ${data.numero_transaccion}<br>
+                        <strong>Monto:</strong> ${data.monto} ${data.moneda}<br>
+                        <strong>Fecha:</strong> ${data.fecha}<br>
+                        <strong>Beneficiario:</strong> ${data.beneficiario}<br>
+                        <strong>Ordenante:</strong> ${data.ordenante}
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `<strong>❌ ${mensaje}</strong>`;
+            }
+            
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Inicializar
+        token = getToken();
+        seleccionarTipo('recibida');
+    </script>
+</body>
+</html>

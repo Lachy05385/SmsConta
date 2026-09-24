@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+    <title>📊 Panel de Transacciones - Gestor Bancario</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        .export-buttons { display: flex; gap: 10px; margin-bottom: 20px; justify-content: flex-end; }
+        .btn-export-excel, .btn-export-pdf { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .btn-export-excel { background: linear-gradient(135deg, #1e8449 0%, #27ae60 100%); color: white; }
+        .btn-export-excel:hover { transform: translateY(-2px); }
+        .btn-export-pdf { background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%); color: white; }
+        .btn-export-pdf:hover { transform: translateY(-2px); }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { background: white; border-radius: 15px; padding: 20px 30px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+        .header h1 { color: #333; font-size: 1.8em; display: flex; align-items: center; gap: 10px; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .user-info span { color: #666; }
+        .user-info strong { color: #667eea; }
+        .logout-btn { background: #f56565; color: white; border: none; padding: 8px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .logout-btn:hover { background: #e53e3e; transform: translateY(-2px); }
+        .stats-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.1); transition: transform 0.3s; }
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-card h3 { color: #666; font-size: 0.9em; margin-bottom: 10px; }
+        .stat-card .value { font-size: 2em; font-weight: bold; color: #333; }
+        .stat-card.enviadas .value { color: #f56565; }
+        .stat-card.recibidas .value { color: #48bb78; }
+        .stat-card.balance .value { color: #667eea; }
+        .stat-card.pendientes .value { color: #ed8936; }
+        .filters-section { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .filters-section h2 { color: #333; font-size: 1.2em; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .filters-row { display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; }
+        .filter-group { flex: 1; min-width: 150px; }
+        .filter-group label { display: block; font-size: 0.8em; color: #666; margin-bottom: 5px; }
+        .filter-group input, .filter-group select { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 0.9em; transition: all 0.3s; }
+        .filter-group input:focus, .filter-group select:focus { outline: none; border-color: #667eea; }
+        .btn-filter { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .btn-filter:hover { transform: translateY(-2px); }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { background: white; border: none; padding: 12px 25px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.3s; color: #666; }
+        .tab-btn.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .transactions-table { background: white; border-radius: 15px; overflow-x: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        th { background: #f8f9fa; font-weight: 600; color: #555; }
+        tr:hover { background: #f8f9fa; }
+        .badge { display: inline-block; padding: 5px 10px; border-radius: 20px; font-size: 0.8em; font-weight: 600; }
+        .badge-enviada { background: #fed7d7; color: #c53030; }
+        .badge-recibida { background: #c6f6d5; color: #22543d; }
+        .badge-pendiente { background: #feebc8; color: #c05621; }
+        .badge-confirmada { background: #c6f6d5; color: #22543d; }
+        .empty-message { text-align: center; padding: 40px; color: #999; }
+        .loading { text-align: center; padding: 40px; color: #667eea; }
+        .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #667eea; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @media (max-width: 768px) { .filters-row { flex-direction: column; } th, td { padding: 10px; font-size: 0.85em; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1><span>🏦</span> Panel de Transacciones</h1>
+        <div class="user-info">
+            <span>👤 <strong id="userName">Cargando...</strong></span>
+            <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+        </div>
+    </div>
+
+    <div class="stats-container">
+        <div class="stat-card enviadas"><h3>📤 Total Enviadas</h3><div class="value" id="totalEnviadas">-</div></div>
+        <div class="stat-card recibidas"><h3>📥 Total Recibidas</h3><div class="value" id="totalRecibidas">-</div></div>
+        <div class="stat-card balance"><h3>💰 Balance</h3><div class="value" id="balance">-</div></div>
+        <div class="stat-card pendientes"><h3>⏳ Pendientes</h3><div class="value" id="pendientes">-</div></div>
+    </div>
+
+    <div class="export-buttons">
+        <button class="btn-export-excel" onclick="exportarExcel()">📊 Exportar a Excel</button>
+        <button class="btn-export-pdf" onclick="exportarPDF()">📄 Exportar a PDF</button>
+    </div>
+
+    <div class="filters-section">
+        <h2>🔍 Filtrar Transacciones</h2>
+        <div class="filters-row">
+            <div class="filter-group">
+                <label>📅 Fecha desde</label>
+                <input type="text" id="fechaInicio" placeholder="DD/MM/YYYY" class="datepicker">
+            </div>
+            <div class="filter-group">
+                <label>📅 Fecha hasta</label>
+                <input type="text" id="fechaFin" placeholder="DD/MM/YYYY" class="datepicker">
+            </div>
+            <div class="filter-group">
+                <label>💵 Moneda</label>
+                <select id="filtroMoneda">
+                    <option value="">Todas</option>
+                    <option value="CUP">CUP</option>
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="MLC">MLC</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>📌 Estado</label>
+                <select id="filtroEstado">
+                    <option value="">Todos</option>
+                    <option value="PENDIENTE">Pendientes</option>
+                    <option value="CONFIRMADA">Confirmadas</option>
+                </select>
+            </div>
+            <button class="btn-filter" onclick="aplicarFiltros()">🔍 Aplicar Filtros</button>
+            <button class="btn-filter" onclick="limpiarFiltros()">🗑️ Limpiar</button>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="cambiarTab('todas')">📋 Todas</button>
+        <button class="tab-btn" onclick="cambiarTab('enviadas')">📤 Enviadas</button>
+        <button class="tab-btn" onclick="cambiarTab('recibidas')">📥 Recibidas</button>
+    </div>
+
+    <div class="transactions-table">
+        <div id="loadingState" style="display: none;"><div class="loading"><div class="spinner"></div><p>Cargando transacciones...</p></div></div>
+        <div id="tableContainer"></div>
+    </div>
+</div>
+
+<script>
+    const BASE_URL = window.location.origin;
+    let token = null;
+    let allTransactions = [];      // todas las transacciones sin filtrar (cargadas una vez)
+    let currentDisplay = [];       // transacciones después de aplicar filtros + pestaña
+    let currentTab = 'todas';
+
+    // ---------- Autenticación ----------
+    function getTokenFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('token');
+    }
+    function getToken() {
+        const urlToken = getTokenFromUrl();
+        if (urlToken) {
+            localStorage.setItem('token', urlToken);
+            return urlToken;
+        }
+        return localStorage.getItem('token');
+    }
+    async function getUserProfile() {
+        token = getToken();
+        if (!token) {
+            window.location.href = '/test';
+            return null;
+        }
+        try {
+            const response = await fetch(`${BASE_URL}/perfil`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const user = await response.json();
+                document.getElementById('userName').textContent = `${user.nombre} ${user.apellido}`;
+                return user;
+            } else {
+                localStorage.removeItem('token');
+                window.location.href = '/test';
+                return null;
+            }
+        } catch (error) {
+            console.error('Error perfil:', error);
+            window.location.href = '/test';
+            return null;
+        }
+    }
+    function logout() {
+        localStorage.removeItem('token');
+        window.location.href = '/test';
+    }
+
+    // ---------- Utilidades de fecha ----------
+    // Convierte DD/MM/YYYY a YYYY-MM-DD
+    function toBackendDate(dateStr) {
+        if (!dateStr) return null;
+        const parts = dateStr.split('/');
+        if (parts.length !== 3) return null;
+        const [day, month, year] = parts;
+        return `${year}-${month.padStart(2,'0')}-${day.padStart(2,'0')}`;
+    }
+    // Convierte YYYY-MM-DD a DD/MM/YYYY
+    function toDisplayDate(dateStr) {
+        if (!dateStr) return '-';
+        if (dateStr.includes('/')) return dateStr;
+        const parts = dateStr.split('-');
+        if (parts.length !== 3) return dateStr;
+        const [year, month, day] = parts;
+        return `${day}/${month}/${year}`;
+    }
+
+    // ---------- Cargar TODAS las transacciones (sin filtros) ----------
+    async function loadAllTransactions() {
+        const url = `${BASE_URL}/transacciones/?skip=0&limit=2000`; // sin parámetros de fecha
+        const response = await fetch(url, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error('Error al cargar transacciones');
+        let data = await response.json();
+        // Normalizar: guardar fechaOriginal en YYYY-MM-DD y fecha en DD/MM/YYYY
+        return data.map(t => ({
+            ...t,
+            tipo: t.tipo || (t.monto > 0 ? 'recibida' : 'enviada'),
+            fechaOriginal: t.fecha,   // backend devuelve YYYY-MM-DD
+            fecha: toDisplayDate(t.fecha)
+        }));
+    }
+
+    // ---------- Aplicar filtros en cliente ----------
+    async function aplicarFiltros() {
+        const loadingDiv = document.getElementById('loadingState');
+        const tableContainer = document.getElementById('tableContainer');
+        loadingDiv.style.display = 'block';
+        tableContainer.innerHTML = '';
+
+        try {
+            // Si es la primera vez, cargar todas las transacciones
+            if (allTransactions.length === 0) {
+                allTransactions = await loadAllTransactions();
+                console.log('Total transacciones cargadas:', allTransactions.length);
+            }
+
+            // Obtener valores de los filtros
+            let fechaInicioStr = document.getElementById('fechaInicio').value;
+            let fechaFinStr = document.getElementById('fechaFin').value;
+            const moneda = document.getElementById('filtroMoneda').value;
+            const estado = document.getElementById('filtroEstado').value;
+
+            const fechaInicio = fechaInicioStr ? toBackendDate(fechaInicioStr) : null;
+            const fechaFin = fechaFinStr ? toBackendDate(fechaFinStr) : null;
+
+            // Filtrar según los criterios
+            let filtradas = allTransactions.filter(t => {
+                // Rango de fechas
+                if (fechaInicio && t.fechaOriginal < fechaInicio) return false;
+                if (fechaFin && t.fechaOriginal > fechaFin) return false;
+                // Moneda
+                if (moneda && t.moneda !== moneda) return false;
+                // Estado
+                if (estado && t.estado !== estado) return false;
+                // Tipo según pestaña
+                if (currentTab === 'enviadas' && t.tipo !== 'enviada') return false;
+                if (currentTab === 'recibidas' && t.tipo !== 'recibida') return false;
+                return true;
+            });
+
+            // Ordenar descendente por fechaOriginal
+            filtradas.sort((a,b) => (b.fechaOriginal || '').localeCompare(a.fechaOriginal || ''));
+
+            currentDisplay = filtradas;
+            actualizarEstadisticas();
+            renderizarTabla();
+        } catch (error) {
+            console.error(error);
+            tableContainer.innerHTML = `<div class="empty-message">❌ Error: ${error.message}</div>`;
+        } finally {
+            loadingDiv.style.display = 'none';
+        }
+    }
+
+    // ---------- Estadísticas ----------
+    function actualizarEstadisticas() {
+        const enviadas = currentDisplay.filter(t => t.tipo === 'enviada');
+        const recibidas = currentDisplay.filter(t => t.tipo === 'recibida');
+        const sumEnviadas = enviadas.reduce((s, t) => s + (t.monto || 0), 0);
+        const sumRecibidas = recibidas.reduce((s, t) => s + (t.monto || 0), 0);
+        const pendientes = currentDisplay.filter(t => t.estado === 'PENDIENTE').length;
+
+        document.getElementById('totalEnviadas').textContent = sumEnviadas.toFixed(2);
+        document.getElementById('totalRecibidas').textContent = sumRecibidas.toFixed(2);
+        document.getElementById('balance').textContent = (sumRecibidas - sumEnviadas).toFixed(2);
+        document.getElementById('pendientes').textContent = pendientes;
+    }
+
+    // ---------- Mostrar tabla ----------
+    function renderizarTabla() {
+        const container = document.getElementById('tableContainer');
+        if (!currentDisplay.length) {
+            container.innerHTML = '<div class="empty-message">📭 No hay transacciones con los filtros actuales</div>';
+            return;
+        }
+        let html = `<table>
+            <thead><tr><th>Fecha</th><th>N° Transacción</th><th>Tipo</th><th>Beneficiario</th><th>Ordenante</th><th>Monto</th><th>Moneda</th><th>Estado</th><th>Fecha Confirmación</th><th>Confirmar</th></tr></thead>
+            <tbody>`;
+        for (const t of currentDisplay) {
+            const tipoClass = t.tipo === 'enviada' ? 'badge-enviada' : 'badge-recibida';
+            const estadoClass = t.estado === 'PENDIENTE' ? 'badge-pendiente' : 'badge-confirmada';
+            const isChecked = t.estado === 'CONFIRMADA';
+            let fechaConfirm = '-';
+            if (t.fecha_confirmacion) {
+                fechaConfirm = new Date(t.fecha_confirmacion).toLocaleString();
+            }
+            html += `<tr data-id="${t.id}">
+                <td>${t.fecha}</td>
+                <td><strong>${t.numero_transaccion || '-'}</strong></td>
+                <td><span class="badge ${tipoClass}">${t.tipo === 'enviada' ? '📤 Enviada' : '📥 Recibida'}</span></td>
+                <td>${t.beneficiario || '-'}</td>
+                <td>${t.ordenante || '-'}</td>
+                <td><strong>${(t.monto || 0).toFixed(2)}</strong></td>
+                <td>${t.moneda}</td>
+                <td><span class="badge ${estadoClass}" id="estado-${t.id}">${t.estado}</span></td>
+                <td>${fechaConfirm}</td>
+                <td><input type="checkbox" class="confirm-checkbox" data-id="${t.id}" ${isChecked ? 'checked disabled' : ''} ${t.estado === 'CONFIRMADA' ? 'disabled' : ''} onchange="cambiarEstado(${t.id}, this.checked)"></td>
+            </tr>`;
+        }
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+    }
+
+    // ---------- Cambiar pestaña ----------
+    function cambiarTab(tab) {
+        currentTab = tab;
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        if (tab === 'todas') document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+        else if (tab === 'enviadas') document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+        else if (tab === 'recibidas') document.querySelector('.tab-btn:nth-child(3)').classList.add('active');
+        aplicarFiltros();
+    }
+
+    function limpiarFiltros() {
+        document.getElementById('fechaInicio').value = '';
+        document.getElementById('fechaFin').value = '';
+        document.getElementById('filtroMoneda').value = '';
+        document.getElementById('filtroEstado').value = '';
+        aplicarFiltros();
+    }
+
+    // ---------- Confirmar transacción ----------
+    async function cambiarEstado(transaccionId, confirmado) {
+        if (!confirmado) return;
+        if (!confirm('¿Confirmar que esta transacción ya aparece en tu estado de cuenta?')) {
+            const cb = document.querySelector(`.confirm-checkbox[data-id="${transaccionId}"]`);
+            if (cb) cb.checked = false;
+            return;
+        }
+        try {
+            const cb = document.querySelector(`.confirm-checkbox[data-id="${transaccionId}"]`);
+            if (cb) cb.disabled = true;
+            const response = await fetch(`${BASE_URL}/transacciones/${transaccionId}/confirmar`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+            });
+            if (response.ok) {
+                // Actualizar estado en allTransactions y currentDisplay
+                const original = allTransactions.find(t => t.id === transaccionId);
+                if (original) original.estado = 'CONFIRMADA';
+                const current = currentDisplay.find(t => t.id === transaccionId);
+                if (current) current.estado = 'CONFIRMADA';
+                // Actualizar la celda del estado visualmente
+                const estadoSpan = document.getElementById(`estado-${transaccionId}`);
+                if (estadoSpan) {
+                    estadoSpan.textContent = 'CONFIRMADA';
+                    estadoSpan.className = 'badge badge-confirmada';
+                }
+                if (cb) {
+                    cb.checked = true;
+                    cb.disabled = true;
+                }
+                mostrarMensaje('✅ Transacción confirmada', 'success');
+                actualizarEstadisticas(); // las estadísticas se basan en currentDisplay
+            } else {
+                const err = await response.json();
+                throw new Error(err.detail || 'Error al confirmar');
+            }
+        } catch (error) {
+            mostrarMensaje(`❌ Error: ${error.message}`, 'error');
+            const cb = document.querySelector(`.confirm-checkbox[data-id="${transaccionId}"]`);
+            if (cb) {
+                cb.checked = false;
+                cb.disabled = false;
+            }
+        }
+    }
+
+    function mostrarMensaje(msg, tipo) {
+        const div = document.createElement('div');
+        div.textContent = msg;
+        div.style.cssText = `position: fixed; bottom: 20px; right: 20px; padding: 12px 20px; background: ${tipo === 'success' ? '#48bb78' : '#f56565'}; color: white; border-radius: 8px; font-weight: 600; z-index: 1000; animation: fadeInOut 3s ease-in-out;`;
+        document.body.appendChild(div);
+        setTimeout(() => div.remove(), 3000);
+    }
+
+    // ---------- Exportaciones ----------
+    async function exportarExcel() {
+        token = getToken();
+        if (!token) return;
+        try {
+            mostrarMensaje('📊 Generando Excel...', 'success');
+            const response = await fetch(`${BASE_URL}/transacciones/exportar/excel`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'transacciones.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+                mostrarMensaje('✅ Excel descargado', 'success');
+            } else throw new Error('Error exportar');
+        } catch (error) {
+            mostrarMensaje(`❌ ${error.message}`, 'error');
+        }
+    }
+    async function exportarPDF() {
+        token = getToken();
+        if (!token) return;
+        try {
+            mostrarMensaje('📄 Generando PDF...', 'success');
+            const response = await fetch(`${BASE_URL}/transacciones/exportar/pdf`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'transacciones.pdf';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+                mostrarMensaje('✅ PDF descargado', 'success');
+            } else throw new Error('Error exportar');
+        } catch (error) {
+            mostrarMensaje(`❌ ${error.message}`, 'error');
+        }
+    }
+
+    // ---------- Inicialización ----------
+    function initDatePickers() {
+        flatpickr("#fechaInicio", { locale: "es", dateFormat: "d/m/Y", allowInput: true });
+        flatpickr("#fechaFin", { locale: "es", dateFormat: "d/m/Y", allowInput: true });
+    }
+    async function init() {
+        await getUserProfile();
+        if (token) {
+            initDatePickers();
+            await aplicarFiltros(); // esto carga allTransactions la primera vez
+        }
+    }
+    // Agregar animación CSS global
+    if (!document.querySelector('#fadeAnim')) {
+        const style = document.createElement('style');
+        style.id = 'fadeAnim';
+        style.textContent = `@keyframes fadeInOut { 0% { opacity:0; transform:translateY(20px); } 15% { opacity:1; transform:translateY(0); } 85% { opacity:1; } 100% { opacity:0; transform:translateY(20px); } }`;
+        document.head.appendChild(style);
+    }
+    init();
+</script>
+</body>
+</html>

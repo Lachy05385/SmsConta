@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Login - Gestor Bancario</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            color: #333;
+            font-size: 1.8em;
+        }
+
+        .logo p {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-login {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+            display: none;
+        }
+
+        .info {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.8em;
+            color: #999;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>🏦 Gestor Bancario</h1>
+            <p>Procesamiento de transferencias</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="info">
+                <strong>💡 CREDENCIALES DE PRUEBA !!!!</strong>
+            </div>
+            <div class="form-group">
+                <label>📧 Email</label>
+                <input type="email" id="email" value="ejemplo@example.com" required>
+            </div>
+            <div class="form-group">
+                <label>🔒 Contraseña</label>
+                <input type="password" id="password" value="E12345678" required>
+            </div>
+            <button type="submit" class="btn-login" id="loginBtn">
+                Iniciar Sesión
+            </button>
+        </form>
+
+        <div class="error-message" id="errorMessage"></div>
+        <div class="info">
+            💡 Demo: Usa las credenciales precargadas
+        </div>
+    </div>
+
+    <script>
+        //const BASE_URL = 'http://localhost:8000';
+        
+        const BASE_URL = window.location.origin;
+        
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorDiv = document.getElementById('errorMessage');
+            
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<span class="spinner"></span> Iniciando sesión...';
+            errorDiv.style.display = 'none';
+            
+            try {
+                const BASE_URL = window.location.origin;
+                console.log('📍 URL base:', BASE_URL);
+                const response = await fetch(`${BASE_URL}/token`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        'username': email,
+                        'password': password
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Guardar token
+                    localStorage.setItem('token', data.access_token);
+                    // Redirigir a página de captura
+                    window.location.href = `${BASE_URL}/capturar`;
+                } else {
+                    errorDiv.textContent = data.detail || 'Credenciales incorrectas';
+                    errorDiv.style.display = 'block';
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = 'Iniciar Sesión';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Error de conexión. Verifica que el servidor esté corriendo.';
+                errorDiv.style.display = 'block';
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = 'Iniciar Sesión';
+            }
+        });
+    </script>
+</body>
+</html>

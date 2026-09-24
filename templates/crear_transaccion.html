@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>➕ Crear Transacción Manual - Gestor Bancario</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info span {
+            color: #666;
+        }
+
+        .user-info strong {
+            color: #667eea;
+        }
+
+        .btn-volver {
+            background: #718096;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-volver:hover {
+            background: #4a5568;
+            transform: translateY(-2px);
+        }
+
+        .logout-btn {
+            background: #f56565;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #e53e3e;
+            transform: translateY(-2px);
+        }
+
+        /* Formulario */
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .form-container h2 {
+            color: #333;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .form-group label .required {
+            color: #f56565;
+            margin-left: 5px;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Fechas rápidas */
+        .fechas-rapidas {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .fecha-btn {
+            background: #f0f0f0;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.3s;
+        }
+
+        .fecha-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Tipo de transacción */
+        .tipo-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .tipo-option {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .tipo-option:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+
+        .tipo-option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+        }
+
+        .tipo-option.selected.enviada {
+            border-color: #f56565;
+            background: #fed7d7;
+        }
+
+        .tipo-option.selected.recibida {
+            border-color: #48bb78;
+            background: #c6f6d5;
+        }
+
+        .tipo-icon {
+            font-size: 2em;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .tipo-label {
+            font-weight: 600;
+        }
+
+        /* Botones */
+        .form-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn-primary {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            flex: 1;
+            background: #e0e0e0;
+            color: #666;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: #c0c0c0;
+        }
+
+        /* Resultado */
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result.success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+            display: block;
+        }
+
+        .result.error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #feb2b2;
+            display: block;
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .tipo-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <span>➕</span>
+                <span>Crear Transacción Manual</span>
+            </h1>
+            <div class="user-info">
+                <span>👤 <strong id="userName">Cargando...</strong></span>
+                <a href="/dashboard" class="btn-volver">📊 Ver Dashboard</a>
+                <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <!-- Formulario -->
+        <div class="form-container">
+            <h2>
+                <span>📝</span>
+                <span>Datos de la Transferencia</span>
+            </h2>
+
+            <!-- Tipo de transacción -->
+            <div class="form-group">
+                <label>Tipo de Transferencia <span class="required">*</span></label>
+                <div class="tipo-container">
+                    <div class="tipo-option" data-tipo="enviada" onclick="seleccionarTipo('enviada')">
+                        <span class="tipo-icon">📤</span>
+                        <span class="tipo-label">Enviada</span>
+                    </div>
+                    <div class="tipo-option" data-tipo="recibida" onclick="seleccionarTipo('recibida')">
+                        <span class="tipo-icon">📥</span>
+                        <span class="tipo-label">Recibida</span>
+                    </div>
+                </div>
+                <input type="hidden" id="tipo" value="enviada">
+            </div>
+
+            <div class="form-row">
+                <!-- Banco -->
+                <div class="form-group">
+                    <label>Banco <span class="required">*</span></label>
+                    <select id="banco">
+                        <option value="">Seleccione un banco...</option>
+                    </select>
+                </div>
+
+                <!-- Moneda -->
+                <div class="form-group">
+                    <label>Moneda <span class="required">*</span></label>
+                    <select id="moneda">
+                        <option value="CUP">🇨🇺 CUP - Peso Cubano</option>
+                        <option value="USD">💵 USD - Dólar</option>
+                        <option value="EUR">💶 EUR - Euro</option>
+                        <option value="MLC">💳 MLC - Moneda Libremente Convertible</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <!-- Beneficiario (cuenta destino) -->
+                <div class="form-group">
+                    <label>Beneficiario (Cuenta Destino) <span class="required">*</span></label>
+                    <input type="text" id="beneficiario" placeholder="Ej: 9205129970539210" maxlength="50">
+                    <small style="color: #999;">Número de cuenta del destinatario</small>
+                </div>
+
+                <!-- Ordenante (cuenta origen) -->
+                <div class="form-group">
+                    <label>Ordenante (Cuenta Origen) <span class="required">*</span></label>
+                    <input type="text" id="ordenante" placeholder="Ej: 9205XXXXXXXX9210 o tel:5354882197" maxlength="50">
+                    <small style="color: #999;">Cuenta de origen o teléfono (ej: tel:5354882197)</small>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <!-- Monto -->
+                <div class="form-group">
+                    <label>Monto <span class="required">*</span></label>
+                    <input type="number" id="monto" step="0.01" placeholder="0.00" value="0.00">
+                </div>
+
+                <!-- Número de transacción -->
+                <div class="form-group">
+                    <label>Número de Transacción <span class="required">*</span></label>
+                    <input type="text" id="numero_transaccion" placeholder="Ej: BR600CNNS7997" maxlength="50">
+                    <small style="color: #999;">Código único de la transferencia</small>
+                </div>
+            </div>
+
+            <!-- Fecha -->
+            <div class="form-group">
+                <label>Fecha <span class="required">*</span></label>
+                <input type="text" id="fecha" placeholder="DD/MM/YYYY">
+                <div class="fechas-rapidas">
+                    <button type="button" class="fecha-btn" onclick="setFecha('hoy')">📅 Hoy</button>
+                    <button type="button" class="fecha-btn" onclick="setFecha('ayer')">📅 Ayer</button>
+                    <button type="button" class="fecha-btn" onclick="setFecha('semana')">📅 Hace 7 días</button>
+                    <button type="button" class="fecha-btn" onclick="setFecha('mes')">📅 Hace 30 días</button>
+                </div>
+                <small style="color: #999;">Formato: DD/MM/YYYY</small>
+            </div>
+
+            <!-- Descripción -->
+            <div class="form-group">
+                <label>Descripción</label>
+                <textarea id="descripcion" rows="3" placeholder="Descripción opcional de la transacción..." maxlength="200"></textarea>
+            </div>
+
+            <!-- Botones -->
+            <div class="form-buttons">
+                <button class="btn-primary" onclick="crearTransaccion()" id="submitBtn">
+                    <span>💾 Guardar Transacción</span>
+                </button>
+                <button class="btn-secondary" onclick="limpiarFormulario()">
+                    <span>🗑️ Limpiar</span>
+                </button>
+            </div>
+
+            <!-- Resultado -->
+            <div id="result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        //const BASE_URL = 'http://localhost:8000';
+        const BASE_URL = window.location.origin;
+        let token = null;
+        let user = null;
+
+        // ========== FUNCIONES DE AUTENTICACIÓN ==========
+        
+        function getTokenFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('token');
+        }
+
+        function saveToken(token) {
+            localStorage.setItem('token', token);
+        }
+
+        function getToken() {
+            const urlToken = getTokenFromUrl();
+            if (urlToken) {
+                saveToken(urlToken);
+                return urlToken;
+            }
+            return localStorage.getItem('token');
+        }
+
+        async function getUserProfile() {
+            token = getToken();
+            if (!token) {
+                window.location.href = '/test';
+                return null;
+            }
+
+            try {
+                const response = await fetch(`${BASE_URL}/perfil`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    user = await response.json();
+                    document.getElementById('userName').textContent = `${user.nombre} ${user.apellido}`;
+                    return user;
+                } else {
+                    localStorage.removeItem('token');
+                    window.location.href = '/test';
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error obteniendo perfil:', error);
+                window.location.href = '/test';
+                return null;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/test';
+        }
+
+        // ========== FUNCIONES DE BANCOS ==========
+        
+        async function cargarBancos() {
+            // Bancos predefinidos (puedes obtenerlos de un endpoint si los tienes en BD)
+            const bancos = [
+                "Banco Popular de Ahorro",
+                "Banco Metropolitano",
+                "Banco Nacional de Cuba",
+                "Banco de Crédito y Comercio",
+                "Banco Financiero Internacional",
+                "Banco Exterior de Cuba",
+                "Banco de Inversiones S.A."
+            ];
+            
+            const select = document.getElementById('banco');
+            select.innerHTML = '<option value="">Seleccione un banco...</option>';
+            
+            bancos.forEach(banco => {
+                const option = document.createElement('option');
+                option.value = banco;
+                option.textContent = banco;
+                select.appendChild(option);
+            });
+        }
+
+        // ========== FUNCIONES DE FECHA ==========
+        
+        function formatearFecha(date) {
+            const dia = String(date.getDate()).padStart(2, '0');
+            const mes = String(date.getMonth() + 1).padStart(2, '0');
+            const año = date.getFullYear();
+            return `${dia}/${mes}/${año}`;
+        }
+
+        function setFecha(opcion) {
+            const hoy = new Date();
+            let fecha = new Date();
+            
+            switch(opcion) {
+                case 'hoy':
+                    fecha = hoy;
+                    break;
+                case 'ayer':
+                    fecha = new Date(hoy);
+                    fecha.setDate(hoy.getDate() - 1);
+                    break;
+                case 'semana':
+                    fecha = new Date(hoy);
+                    fecha.setDate(hoy.getDate() - 7);
+                    break;
+                case 'mes':
+                    fecha = new Date(hoy);
+                    fecha.setDate(hoy.getDate() - 30);
+                    break;
+            }
+            
+            document.getElementById('fecha').value = formatearFecha(fecha);
+        }
+
+        // ========== FUNCIONES DEL FORMULARIO ==========
+        
+        function seleccionarTipo(tipo) {
+            document.getElementById('tipo').value = tipo;
+            
+            // Actualizar estilos
+            document.querySelectorAll('.tipo-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            const selected = document.querySelector(`.tipo-option[data-tipo="${tipo}"]`);
+            selected.classList.add('selected');
+            if (tipo === 'enviada') {
+                selected.classList.add('enviada');
+            } else {
+                selected.classList.add('recibida');
+            }
+        }
+
+        function limpiarFormulario() {
+            document.getElementById('banco').value = '';
+            document.getElementById('beneficiario').value = '';
+            document.getElementById('ordenante').value = '';
+            document.getElementById('monto').value = '0.00';
+            document.getElementById('numero_transaccion').value = '';
+            document.getElementById('descripcion').value = '';
+            document.getElementById('result').className = 'result';
+            document.getElementById('result').style.display = 'none';
+            setFecha('hoy');
+            seleccionarTipo('enviada');
+        }
+
+        function mostrarResultado(exito, mensaje, data = null) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = `result ${exito ? 'success' : 'error'}`;
+            
+            if (exito && data) {
+                resultDiv.innerHTML = `
+                    <strong>✅ ${mensaje}</strong><br>
+                    <div style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.05); border-radius: 8px;">
+                        <strong>ID:</strong> ${data.id}<br>
+                        <strong>N° Transacción:</strong> ${data.numero_transaccion}<br>
+                        <strong>Monto:</strong> ${data.monto} ${data.moneda}<br>
+                        <strong>Fecha:</strong> ${data.fecha}<br>
+                        <strong>Tipo:</strong> ${data.tipo === 'enviada' ? '📤 Enviada' : '📥 Recibida'}<br>
+                        <strong>Banco:</strong> ${data.banco}
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `<strong>❌ ${mensaje}</strong>`;
+            }
+            
+            resultDiv.style.display = 'block';
+            
+            // Scroll al resultado
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // ========== CREAR TRANSACCIÓN ==========
+        
+        async function crearTransaccion() {
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Validar campos
+            const banco = document.getElementById('banco').value;
+            const beneficiario = document.getElementById('beneficiario').value.trim();
+            const ordenante = document.getElementById('ordenante').value.trim();
+            const monto = parseFloat(document.getElementById('monto').value);
+            const moneda = document.getElementById('moneda').value;
+            const numero_transaccion = document.getElementById('numero_transaccion').value.trim();
+            const fecha = document.getElementById('fecha').value.trim();
+            const tipo = document.getElementById('tipo').value;
+            const descripcion = document.getElementById('descripcion').value.trim();
+            
+            // Validaciones
+            if (!banco) {
+                mostrarResultado(false, 'Por favor seleccione un banco');
+                return;
+            }
+            
+            if (!beneficiario) {
+                mostrarResultado(false, 'Por favor ingrese el beneficiario (cuenta destino)');
+                return;
+            }
+            
+            if (beneficiario.length < 4) {
+                mostrarResultado(false, 'El beneficiario debe tener al menos 4 caracteres');
+                return;
+            }
+            
+            if (!ordenante) {
+                mostrarResultado(false, 'Por favor ingrese el ordenante (cuenta origen o teléfono)');
+                return;
+            }
+            
+            if (ordenante.length < 4) {
+                mostrarResultado(false, 'El ordenante debe tener al menos 4 caracteres');
+                return;
+            }
+            
+            if (isNaN(monto) || monto <= 0) {
+                mostrarResultado(false, 'Por favor ingrese un monto válido mayor que 0');
+                return;
+            }
+            
+            if (monto > 10000000) {
+                mostrarResultado(false, 'El monto no puede ser mayor a 10,000,000');
+                return;
+            }
+            
+            if (!numero_transaccion) {
+                mostrarResultado(false, 'Por favor ingrese el número de transacción');
+                return;
+            }
+            
+            if (!fecha) {
+                mostrarResultado(false, 'Por favor ingrese la fecha');
+                return;
+            }
+            
+            // Validar formato de fecha
+            const fechaRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+            if (!fechaRegex.test(fecha)) {
+                mostrarResultado(false, 'Formato de fecha inválido. Use DD/MM/YYYY');
+                return;
+            }
+            
+            // Deshabilitar botón
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading"></span> Guardando...';
+            
+            try {
+                const payload = {
+                    banco: banco,
+                    beneficiario: beneficiario,
+                    ordenante: ordenante,
+                    monto: monto,
+                    moneda: moneda,
+                    numero_transaccion: numero_transaccion,
+                    fecha: fecha,
+                    tipo: tipo,
+                    descripcion: descripcion
+                };
+                
+                console.log('📤 Enviando:', payload);
+                
+                const response = await fetch(`${BASE_URL}/transacciones/`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    mostrarResultado(true, 'Transacción creada exitosamente!', data);
+                    // Limpiar campos excepto usuario y token
+                    document.getElementById('beneficiario').value = '';
+                    document.getElementById('ordenante').value = '';
+                    document.getElementById('monto').value = '0.00';
+                    document.getElementById('numero_transaccion').value = '';
+                    document.getElementById('descripcion').value = '';
+                    // Mantener el banco seleccionado para facilitar siguiente creación
+                } else {
+                    let errorMsg = data.detail;
+                    if (Array.isArray(data.detail)) {
+                        errorMsg = data.detail.map(e => e.msg).join(', ');
+                    }
+                    mostrarResultado(false, errorMsg || 'Error al crear la transacción');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarResultado(false, `Error de conexión: ${error.message}`);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>💾 Guardar Transacción</span>';
+            }
+        }
+
+        // ========== INICIALIZACIÓN ==========
+        
+        async function init() {
+            token = getToken();
+            if (!token) {
+                window.location.href = '/test';
+                return;
+            }
+            
+            const user = await getUserProfile();
+            if (user) {
+                await cargarBancos();
+                setFecha('hoy');
+                seleccionarTipo('enviada');
+                
+                // Generar número de transacción sugerido
+                const fecha = new Date();
+                const sugerido = `MAN${fecha.getFullYear()}${String(fecha.getMonth()+1).padStart(2,'0')}${String(fecha.getDate()).padStart(2,'0')}${String(fecha.getHours()).padStart(2,'0')}${String(fecha.getMinutes()).padStart(2,'0')}`;
+                document.getElementById('numero_transaccion').placeholder = `Ej: ${sugerido}`;
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

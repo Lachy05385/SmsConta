@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta http-equiv="Content-Language" content="es">
+  <meta name="google" content="translate">
+  <title>Control de Transferencias | SmsConta</title>
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f4f7fc;
+      color: #1a2c3e;
+      line-height: 1.5;
+      scroll-behavior: smooth;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Header */
+    header {
+      background: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(2px);
+      background: rgba(255,255,255,0.96);
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .logo {
+      font-size: 1.7rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #0b5e7e, #1b8c5e);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.3px;
+    }
+
+    .logo span {
+      font-weight: 400;
+      color: #2c7da0;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a,
+    .nav-toggle-btn {
+      text-decoration: none;
+      font-weight: 500;
+      color: #2c3e50;
+      transition: color 0.2s;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 1rem;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+
+    .nav-links a:hover,
+    .nav-toggle-btn:hover {
+      color: #1b8c5e;
+    }
+
+    .btn-outline {
+      border: 1.5px solid #1b8c5e;
+      padding: 8px 20px;
+      border-radius: 40px;
+      color: #1b8c5e;
+      background: transparent;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+
+    .btn-outline:hover {
+      background: #eafaf3;
+      color: #0f6b48;
+    }
+
+    .btn-primary {
+      background: #1b8c5e;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 40px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      font-size: 1rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .btn-primary:hover {
+      background: #0f6b48;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: #2c7da0;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 40px;
+      font-weight: 500;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+      font-family: inherit;
+      font-size: 1rem;
+    }
+
+    .btn-secondary:hover {
+      background: #1e5d78;
+      transform: translateY(-2px);
+    }
+
+    .btn-precios-toggle {
+      background: #f4b942;
+      color: #1a2c3e;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 40px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      font-size: 1rem;
+      box-shadow: 0 4px 12px rgba(244, 185, 66, 0.3);
+    }
+
+    .btn-precios-toggle:hover {
+      background: #e0a830;
+      transform: translateY(-2px);
+    }
+
+    .btn-precios-toggle.active {
+      background: #6c7a89;
+      color: white;
+      box-shadow: 0 4px 12px rgba(108, 122, 137, 0.3);
+    }
+
+    /* Botón flotante */
+    .floating-app-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 999;
+      background: #1b8c5e;
+      color: white;
+      border: none;
+      border-radius: 60px;
+      padding: 16px 24px;
+      font-weight: 600;
+      font-size: 1rem;
+      box-shadow: 0 8px 24px rgba(27, 140, 94, 0.4);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.3px;
+      animation: pulseGlow 2.5s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 8px 24px rgba(27, 140, 94, 0.4); }
+      50% { box-shadow: 0 8px 32px rgba(27, 140, 94, 0.7); }
+    }
+
+    .floating-app-btn:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 12px 32px rgba(27, 140, 94, 0.6);
+      background: #0f6b48;
+      animation: none;
+    }
+
+    .floating-app-btn i {
+      font-size: 1.4rem;
+    }
+
+    @media (max-width: 480px) {
+      .floating-app-btn {
+        padding: 14px 18px;
+        font-size: 0.9rem;
+        bottom: 20px;
+        right: 20px;
+      }
+      .floating-app-btn span {
+        display: none;
+      }
+      .floating-app-btn i {
+        font-size: 1.8rem;
+      }
+    }
+    /* clientes  */
+    .social-proof-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-width: 180px;
+    padding: 12px 24px;
+    }
+
+    .stat-number {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #1b8c5e;
+    line-height: 1;
+    margin-bottom: 8px;
+    letter-spacing: -1px;
+    transition: all 0.4s ease;
+    }
+
+    .stat-label {
+    font-size: 0.95rem;
+    color: #2c3e50;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    letter-spacing: 0.2px;
+    }
+
+    .stat-label i {
+    color: #1b8c5e;
+    font-size: 1rem;
+    }
+
+    /* Efecto hover sutil */
+    .social-proof-stat:hover .stat-number {
+    transform: scale(1.05);
+    color: #0f6b48;
+    }
+
+    /* Versión compacta para móviles */
+    @media (max-width: 480px) {
+    .social-proof-stat {
+        min-width: 140px;
+        padding: 8px 16px;
+    }
+    .stat-number {
+        font-size: 2.4rem;
+    }
+    .stat-label {
+        font-size: 0.85rem;
+    }
+    .stat-label i {
+        font-size: 0.9rem;
+    }
+    }
+
+
+
+    /* Hero */
+    .hero {
+      padding: 60px 0 40px;
+      background: linear-gradient(145deg, #ffffff 0%, #f0f6fa 100%);
+    }
+
+    .hero-grid {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+    }
+
+    .hero-text {
+      flex: 1;
+    }
+
+    .hero-text h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 20px;
+      color: #0a2e3f;
+    }
+
+    .hero-text .highlight {
+      color: #1b8c5e;
+      border-bottom: 3px solid #c5e0d4;
+    }
+
+    .hero-text p {
+      font-size: 1.2rem;
+      color: #2c3e50c9;
+      margin-bottom: 32px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .hero-img {
+      flex: 0.9;
+      background: #d9e9f0;
+      border-radius: 32px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 20px 30px -12px rgba(0,0,0,0.1);
+    }
+
+    .hero-img i {
+      font-size: 8rem;
+      color: #2c7da0;
+    }
+
+    section {
+      padding: 64px 0;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 48px;
+      color: #1a3b4c;
+    }
+
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
+    }
+
+    .card {
+      background: white;
+      border-radius: 28px;
+      padding: 28px 22px;
+      flex: 1;
+      min-width: 240px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+      transition: all 0.25s;
+      border: 1px solid #e2edf2;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 30px -12px rgba(27,140,94,0.12);
+    }
+
+    .card-icon {
+      font-size: 2.5rem;
+      color: #1b8c5e;
+      margin-bottom: 20px;
+    }
+
+    .card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 12px;
+    }
+    
+    .confirmation-module {
+      background: #e9f3ef;
+      border-radius: 48px;
+      padding: 48px 40px;
+      margin: 20px 0;
+    }
+
+    .flex-confirm {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .confirm-demo {
+      flex: 1;
+      background: white;
+      border-radius: 28px;
+      padding: 32px;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.05);
+    }
+
+    .confirm-demo h4 {
+      font-size: 1.6rem;
+      margin-bottom: 16px;
+    }
+
+    .demo-input {
+      display: flex;
+      gap: 12px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+
+    .demo-input input {
+      flex: 2;
+      padding: 14px;
+      border-radius: 60px;
+      border: 1px solid #cbdde6;
+      font-family: inherit;
+    }
+
+    .confirm-result {
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 20px;
+      margin-top: 20px;
+      border-left: 5px solid #1b8c5e;
+    }
+
+    /* Secciones ocultas */
+    .hidden {
+      display: none !important;
+    }
+
+    #precios, #cuba-hoy, #mundo-desarrollado {
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Precios */
+    .pricing-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
+    }
+
+    .price.long-text {
+      font-size: 1.8rem;
+    }
+
+    .price-card {
+      background: white;
+      border-radius: 32px;
+      padding: 32px;
+      flex: 1;
+      min-width: 260px;
+      text-align: center;
+      box-shadow: 0 12px 24px -10px rgba(0,0,0,0.08);
+      transition: transform 0.2s;
+    }
+
+    .price-card.featured {
+      border: 2px solid #1b8c5e;
+      transform: scale(1.02);
+    }
+
+    .price {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #1b8c5e;
+      margin: 20px 0;
+    }
+
+    .price span {
+      font-size: 1rem;
+      font-weight: 400;
+    }
+
+    .price-card ul {
+      text-align: left;
+      margin: 24px 0;
+      list-style: none;
+    }
+
+    .price-card li {
+      margin: 12px 0;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .price-card li i {
+      color: #1b8c5e;
+      width: 22px;
+    }
+
+    /* Formulario */
+    .form-section {
+      background: #ffffffd9;
+      border-radius: 48px;
+      box-shadow: 0 20px 30px -10px rgba(0,0,0,0.05);
+    }
+
+    .form-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .form-info {
+      flex: 1;
+    }
+
+    .contact-form {
+      flex: 1;
+      background: #f9fefe;
+      padding: 32px;
+      border-radius: 32px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 28px;
+      border: 1px solid #cee0e8;
+      font-family: inherit;
+    }
+
+    .form-group textarea {
+      border-radius: 24px;
+      resize: vertical;
+    }
+
+    footer {
+      background: #0a2e3f;
+      color: white;
+      padding: 40px 0 24px;
+      margin-top: 20px;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .footer-links a {
+      color: #bdd9e5;
+      text-decoration: none;
+      margin: 0 12px 0 0;
+      cursor: pointer;
+    }
+
+    .footer-links a:hover {
+      color: #fff;
+    }
+
+    hr {
+      margin: 32px 0 20px;
+      border-color: #2c5a70;
+    }
+
+    @media (max-width: 780px) {
+      .hero-text h1 {
+        font-size: 2rem;
+      }
+      .navbar {
+        flex-direction: column;
+      }
+      .section-title {
+        font-size: 1.7rem;
+      }
+      .nav-links {
+        justify-content: center;
+        gap: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="navbar">
+      <div class="logo">Sms<span>Conta</span> <i class="fas fa-exchange-alt" style="font-size: 1.2rem;"></i></div>
+      <div class="nav-links">
+        <a href="#servicio">Servicio</a>
+        <a href="#confirmacion">Confirmación</a>
+        <button class="nav-toggle-btn" id="togglePreciosNav">Precios</button>
+        <a href="#contrato">Contrato</a>
+        <button class="btn-outline" id="appLink">Ir a la App <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- Hero -->
+  <div class="hero">
+    <div class="container hero-grid">
+      <div class="hero-text">
+        <h1>Automatiza el control de <span class="highlight">transferencias bancarias</span> para tu despacho contable</h1>
+        <p>Captura y procesa automáticamente los textos de cada transferencia. Módulo de confirmación en tiempo real + cuadre con estado de cuenta. Trabaja 70% más rápido.</p>
+        <div class="hero-actions">
+          <button class="btn-primary" onclick="scrollToForm()">Solicitar contrato <i class="fas fa-file-signature"></i></button>
+          <button class="btn-secondary" id="demoConfirmBtn">Ver demo</button>
+          <button class="btn-precios-toggle" id="togglePreciosHero">
+            <i class="fas fa-tag"></i> Ver precios
+          </button>
+        </div>
+      </div>
+      <div class="hero-img">
+        <i class="fas fa-chalkboard-user"></i>
+        <i class="fas fa-file-invoice-dollar" style="font-size: 3rem; margin-left: 20px;"></i>
+        <p style="margin-top: 20px; font-weight: 500;">Captura + procesamiento + validación bancaria</p>
+      </div>
+    </div>
+    </div>
+        <div class="social-proof-stat">
+            <div class="stat-number" id="totalClientes">4</div>
+            <div class="stat-label">
+            <i class="fas fa-building"></i> 
+            <span id="clientesLabel">clientes activos</span>
+        </div>
+    </div>
+  <!-- Servicio -->
+  <div class="container" id="servicio">
+    <h2 class="section-title">📌 ¿Cómo funciona el servicio?</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon"><i class="fas fa-upload"></i></div>
+        <h3>Captura inteligente</h3>
+        <p>Extraemos el texto de cada transferencia (texto bancario, imagen) y lo estructuramos: monto, fecha, ordenante, beneficiario, concepto, referencia.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon"><i class="fas fa-microchip"></i></div>
+        <h3>Procesamiento contable</h3>
+        <p>Clasificación automática de datos, detección de patrones de transferencias y generación de reportes preliminares.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon"><i class="fas fa-check-double"></i></div>
+        <h3>Módulo de confirmación</h3>
+        <p>"Unifica todas las transferencias de tus puntos de venta (texto o imagen). El contador las coteja con el estado de cuenta real y confirma las liquidadas. Horas de trabajo se reducen a minutos."</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Módulo de confirmación (demo) -->
+  <div class="container" id="confirmacion">
+    <div class="confirmation-module" id="democonfirm">
+      <div class="flex-confirm">
+        <div class="confirm-demo">
+          <h4><i class="fas fa-search-dollar"></i> Módulo de confirmación</h4>
+          <p>Simula cómo el sistema verifica si una transferencia ya apareció en el estado de cuenta. Ideal para contadores que necesitan certeza de cobro.</p>
+          <div class="demo-input">
+            <input type="text" id="transRef" placeholder="Ej: REF-1234, monto $45.000, fecha 10/05" value="Transferencia a Ruiz $72.500 - Ref 9876">
+            <button class="btn-primary" id="checkBtn" style="padding: 12px 20px;">Verificar ahora</button>
+          </div>
+          <div id="demoResult" class="confirm-result">
+            <i class="fas fa-clock"></i> Espera una referencia de transferencia para consultar...
+          </div>
+          <p style="font-size: 0.8rem; margin-top: 16px;">* Simulación técnica: el sistema cruza datos con APIs bancarias / archivos de estado de cuenta.</p>
+        </div>
+        <div style="flex: 0.8;">
+          <i class="fas fa-chart-line" style="font-size: 4rem; color: #1b8c5e;"></i>
+          <h3 style="margin-top: 12px;">Confirmación automática en cada asiento</h3>
+          <p>Revisa si cada transferencia ya impactó en el extracto bancario. Reduce conciliaciones manuales a minutos.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container" id="valor-cuba" style="scroll-margin-top: 80px;">
+    <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e6f4ea 100%); border-radius: 48px; padding: 48px 32px; margin: 40px 0;">
+      <h2 class="section-title" style="margin-bottom: 24px;">🌎 ¿Por qué SmsConta es diferente?</h2>
+      
+      <!-- Explicación clara desde el inicio -->
+      <div style="background: white; border-radius: 32px; padding: 28px; margin-bottom: 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        <h3 style="color: #0a2e3f; margin-bottom: 16px;"><i class="fas fa-info-circle" style="color: #1b8c5e;"></i> ¿Qué hace exactamente SmsConta ?</h3>
+        <p style="font-size: 1.1rem; line-height: 1.7;"><strong>SmsConta NO es una API bancaria.</strong> No se conecta al banco, no obtiene saldos ni movimientos bancarios en tiempo real. <strong>Tampoco procesa automáticamente tu extracto bancario.</strong></p>
+        <p style="font-size: 1.1rem; line-height: 1.7; margin-top: 12px;"><strong>Lo que SÍ hace:</strong></p>
+        <ul style="margin-left: 24px; line-height: 1.8; font-size: 1.05rem;">
+          <li><strong>Organiza automáticamente</strong> los mensajes de texto bancarios que ya recibes (fecha, monto, ordenante, beneficiario, N° operación).</li>
+          <li><strong>Te facilita la conciliación:</strong> mientras revisas tu extracto bancario (en papel o PDF), <strong>marcas manualmente</strong> en SmsConta cada transacción que aparece en el extracto.</li>
+          <li><strong>Dashboard inteligente:</strong> ves en tiempo real qué pagos ya están confirmados y cuáles aún pendientes de aparecer en el extracto.</li>
+          <li><strong>Detecta anomalías:</strong> si un pago no se confirma después de varios días, el sistema te lo recuerda.</li>
+          <li><strong>Analiza cuentas de terceros:</strong> si usas cuentas que no son de tu negocio, SmsConta te muestra cuánto se ha depositado en cada una.</li>
+          <li><strong>Dashboard para contadores:</strong> cada contador ve las transferencias de sus vendedores y las confirma una por una.</li>
+        </ul>
+        <div style="background: #fef9e3; border-radius: 16px; padding: 16px; margin-top: 16px; border-left: 4px solid #f4b942;">
+          <p style="margin: 0; font-size: 0.95rem;"><i class="fas fa-lightbulb" style="color: #f4b942;"></i> <strong>En resumen:</strong> SmsConta es tu asistente personal para la conciliación bancaria. <strong>No reemplaza la revisión del contador, la hace más rápida y ordenada.</strong></p>
+        </div>
+    </div>
+
+  <!-- Botones para expandir subsecciones -->
+  <div class="container" style="text-align: center; padding: 20px 0; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+    <button class="btn-secondary" id="toggleCubaBtn" style="font-size: 1.05rem; padding: 14px 32px;">
+      <i class="fas fa-flag"></i> En Cuba hoy
+    </button>
+    <button class="btn-secondary" id="toggleMundoBtn" style="font-size: 1.05rem; padding: 14px 32px;">
+      <i class="fas fa-globe-americas"></i> En el mundo desarrollado
+    </button>
+  </div>
+
+  <!-- Subsección: Cuba hoy (oculta) -->
+  <div class="container hidden" id="cuba-hoy" style="scroll-margin-top: 80px;">
+    <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e6f4ea 100%); border-radius: 48px; padding: 48px 32px; margin: 20px 0;">
+      <h2 class="section-title" style="margin-bottom: 24px;">En Cuba hoy</h2>
+      <div style="background: white; border-radius: 32px; padding: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        <p><strong>❌ El problema:</strong> los contadores reciben decenas de mensajes de texto bancarios y deben:</p>
+        <ul style="margin: 12px 0 12px 24px; line-height: 1.8;">
+          <li>Leer cada mensaje manualmente</li>
+          <li>Anotar en Excel: fecha, monto, ordenante, beneficiario</li>
+          <li>Revisar el extracto bancario (en papel o PDF)</li>
+          <li>Marcar uno por uno los pagos que ya aparecen</li>
+          <li>Detectar fraudes o mensajes falsos</li>
+          <li>Controlar depósitos en cuentas de terceros</li>
+        </ul>
+        <p style="margin-top: 20px;"><strong>✅ La solución de SmsConta:</strong></p>
+        <ul style="margin: 12px 0 0 24px; line-height: 1.8;">
+          <li>Parsea automáticamente el 98% de los mensajes</li>
+          <li>Organiza toda la información en un dashboard</li>
+          <li><strong>Tú revisas el extracto y marcas como "confirmadas"</strong> las que aparecen</li>
+          <li>El sistema te muestra en tiempo real: confirmadas vs pendientes</li>
+          <li>Análisis financiero con 1 clic</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subsección: Mundo desarrollado (oculta) -->
+  <div class="container hidden" id="mundo-desarrollado" style="scroll-margin-top: 80px;">
+    <div style="background: linear-gradient(135deg, #e8f0fe 0%, #f0f9ff 100%); border-radius: 48px; padding: 48px 32px; margin: 20px 0;">
+      <h2 class="section-title" style="margin-bottom: 24px;">🌎 En el mundo desarrollado</h2>
+      <div style="background: white; border-radius: 32px; padding: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        <p>Fuera de Cuba, los bancos ofrecen <strong>APIs oficiales</strong> (Open Banking). Empresas como <strong>Plaid, Tink o Xero</strong> se conectan directamente a estas APIs para obtener datos bancarios y hacer conciliación automática.</p>
+        <p style="margin-top: 12px;">Estos servicios cuestan desde <strong>USD 500/mes</strong> y requieren que los bancos tengan APIs disponibles. En Cuba <strong>eso no existe</strong>.</p>
+        <div style="background: #e8f0fe; border-radius: 16px; padding: 16px; margin-top: 16px;">
+          <p style="margin: 0; font-size: 0.95rem;"><i class="fas fa-info-circle" style="color: #1b5e3f;"></i> <strong>Nota:</strong> SmsConta <strong>no compite</strong> con estos servicios porque hacen cosas diferentes. Ellos se conectan al banco. SmsConta <strong>te ayuda a organizar la información</strong> para que tú, contador, puedas conciliar más rápido.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Formulario -->
+  
+  
+  
+  <!-- Precios (oculto por defecto) -->
+  <div class="container hidden" id="precios">
+    <h2 class="section-title">💰 Planes pensados para contadores</h2>
+    <div class="pricing-grid">
+      <div class="price-card" data-plan="Personal">
+        <h3>Personal</h3>
+        <div class="price long-text">$ 15 USD <span>/mes</span></div>
+        <ul>
+          <li><i class="fas fa-check-circle"></i> Personal 2 puntos de venta</li>
+          <li><i class="fas fa-check-circle"></i> 50 Transacciones diarias</li>
+          <li><i class="fas fa-check-circle"></i> Procesamiento básico de textos</li>
+          <li><i class="fas fa-check-circle"></i> Módulo de confirmación (manual)</li>
+          <li><i class="fas fa-check-circle"></i> OCR + IA avanzada</li>
+          <li><i class="fas fa-check-circle"></i> Reportes Personalizados</li>
+        </ul>
+        <button class="btn-outline select-plan-btn">Elegir plan</button>
+      </div>
+      <div class="price-card" data-plan="Básico">
+        <h3>Básico</h3>
+        <div class="price long-text">$ 30 USD <span>/mes</span></div>
+        <ul>
+          <li><i class="fas fa-check-circle"></i> Hasta 5 puntos de venta</li>
+          <li><i class="fas fa-check-circle"></i> Procesamiento básico de textos</li>
+          <li><i class="fas fa-check-circle"></i> Módulo de confirmación (manual)</li>
+          <li><i class="fas fa-check-circle"></i> OCR + IA avanzada</li>
+          <li><i class="fas fa-check-circle"></i> Reportes Personalizados</li>
+          <li><i class="fas fa-envelope"></i> Soporte email</li>
+        </ul>
+        <button class="btn-outline select-plan-btn">Elegir plan</button>
+      </div>
+      <div class="price-card featured" data-plan="Premium">
+        <h3>Premium <i class="fas fa-crown" style="color: #f4b942;"></i></h3>
+        <div class="price long-text">$ 50 USD <span>/mes</span></div>
+        <ul>
+          <li><i class="fas fa-check-circle"></i> Transferencias ilimitadas 10 Puntos de venta</li>
+          <li><i class="fas fa-check-circle"></i> Procesamiento básico de textos</li>
+          <li><i class="fas fa-check-circle"></i> Módulo de confirmación (manual)</li>
+          <li><i class="fas fa-check-circle"></i> OCR + IA avanzada</li>
+          <li><i class="fas fa-check-circle"></i> Reportes Personalizados</li>
+          <li><i class="fas fa-headset"></i> Soporte prioritario + integración contable</li>
+        </ul>
+        <button class="btn-primary select-plan-btn">Contratar ahora</button>
+      </div>
+      <div class="price-card" data-plan="Empresarial">
+        <h3>Empresarial</h3>
+        <div class="price long-text">Personalizado</div>
+        <ul>
+          <li><i class="fas fa-building"></i> Múltiples empresas / cuentas</li>
+          <li><i class="fas fa-link"></i> API para sistemas contables</li>
+          <li><i class="fas fa-chart-pie"></i> Dashboard analítico</li>
+          <li><i class="fas fa-concierge-bell"></i> Implementación dedicada</li>
+        </ul>
+        <button class="btn-outline select-plan-btn">Contactar ventas</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulario -->
+  <div class="container" id="contrato">
+    <div class="form-section" style="padding: 32px 28px; background: #ffffff; margin-bottom: 40px;">
+      <div class="form-grid">
+        <div class="form-info">
+          <i class="fas fa-file-contract" style="font-size: 3rem; color:#1b8c5e;"></i>
+          <h2 style="margin: 20px 0 16px;">Solicita tu contrato o demo personalizada</h2>
+          <p>Rellena el formulario y en menos de 24h un asesor especializado en contabilidad te enviará la propuesta, con todos los detalles de implementación y módulo de confirmación de transferencias.</p>
+          <ul style="margin-top: 20px; list-style: none;">
+            <li><i class="fas fa-shield-alt"></i> Datos protegidos</li>
+            <li><i class="fas fa-hand-holding-usd"></i> Precios transparentes</li>
+            <li><i class="fas fa-sync-alt"></i> Integración con tu flujo actual</li>
+          </ul>
+        </div>
+        <div class="contact-form">
+          <h3>📄 Solicitar contrato</h3>
+          <form id="contractForm">
+            <div class="form-group">
+              <input type="text" id="nombre" placeholder="Nombre completo *" required>
+            </div>
+            <div class="form-group">
+              <input type="email" id="email" placeholder="Correo electrónico *" required>
+            </div>
+            <div class="form-group">
+              <input type="tel" id="telefono" placeholder="Teléfono / WhatsApp">
+            </div>
+            <div class="form-group">
+              <input type="text" id="empresa" placeholder="Nombre del despacho / empresa">
+            </div>
+            <div class="form-group">
+              <textarea id="mensaje" rows="3" placeholder="Cuéntanos tu volumen de transferencias mensual o necesidades específicas..."></textarea>
+            </div>
+            <input type="hidden" id="planSeleccionado" value="">
+            <button type="submit" class="btn-primary" style="width: 100%;">Enviar solicitud <i class="fas fa-paper-plane"></i></button>
+            <p style="font-size: 0.75rem; margin-top: 16px;">Al enviar aceptas recibir información comercial y condiciones del servicio.</p>
+          </form>
+          <div id="formMsg" style="margin-top: 15px; font-weight: 500;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Botón flotante -->
+<button class="floating-app-btn" id="floatingAppBtn">
+  <i class="fas fa-mobile-alt"></i>
+  <span>Visitar App</span>
+</button>
+
+<footer>
+  <div class="container">
+    <div class="footer-links">
+      <div>
+        <i class="fas fa-chart-simple"></i> SmsConta - Control de Transferencias Bancarias
+      </div>
+      <div>
+        <a onclick="scrollToTop()">Inicio</a>
+        <a href="#servicio">Servicio</a>
+        <a id="footerPreciosLink">Precios</a>
+        <button id="mainAppFooterLink" class="btn-outline" style="background: none; border-color: #bdd9e5; color: #bdd9e5;">Acceso App principal</button>
+      </div>
+    </div>
+    <hr>
+    <div style="text-align: center; font-size: .8rem;">© 2026 SmsConta – Captura inteligente, confirmación bancaria y conciliación para contadores.</div>
+  </div>
+</footer>
+
+<script>
+  // --- Redirección a la app ---
+  function redirectToApp() {
+    window.location.href = '/test';
+  }
+  const appLinkBtn = document.getElementById('appLink');
+  const footerAppBtn = document.getElementById('mainAppFooterLink');
+  const floatingBtn = document.getElementById('floatingAppBtn');
+  if (appLinkBtn) appLinkBtn.addEventListener('click', redirectToApp);
+  if (footerAppBtn) footerAppBtn.addEventListener('click', redirectToApp);
+  if (floatingBtn) floatingBtn.addEventListener('click', redirectToApp);
+
+  // --- Scroll al top ---
+  window.scrollToTop = function() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // --- Módulo demo de confirmación ---
+  const checkBtn = document.getElementById('checkBtn');
+  const transRefInput = document.getElementById('transRef');
+  const demoResult = document.getElementById('demoResult');
+
+  function simulateConfirmation(referenceText) {
+    const confirmedKeywords = ['72.500', '9876', 'PAGO NOMINA', 'TRANSFERENCIA APROBADA', 'CARGOMEX', 'RUIZ'];
+    let lowerRef = referenceText.toLowerCase();
+    let found = confirmedKeywords.some(keyword => lowerRef.includes(keyword.toLowerCase()));
+    if (found || (referenceText.length > 12 && referenceText.includes('72.500'))) {
+      return { status: 'confirmed', message: '✅ ¡Confirmado! Esta transferencia YA aparece en el estado de cuenta bancario (fecha: 10/05/2025, monto coincidente).' };
+    } else {
+      return { status: 'pending', message: '⏳ Aún NO se encuentra registrada en el extracto bancario. El sistema te notificará automáticamente cuando esté confirmada.' };
+    }
+  }
+
+  if (checkBtn) {
+    checkBtn.addEventListener('click', () => {
+      let ref = transRefInput.value.trim();
+      if (ref === "") {
+        demoResult.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Ingresa una referencia de transferencia para simular la comprobación.';
+        return;
+      }
+      let result = simulateConfirmation(ref);
+      demoResult.innerHTML = `<i class="fas fa-${result.status === 'confirmed' ? 'check-circle' : 'hourglass-half'}"></i> ${result.message}`;
+    });
+  }
+
+  // --- Toggle de PRECIOS ---
+  const preciosSection = document.getElementById('precios');
+  const togglePreciosNav = document.getElementById('togglePreciosNav');
+  const togglePreciosHero = document.getElementById('togglePreciosHero');
+  const footerPreciosLink = document.getElementById('footerPreciosLink');
+
+  function togglePrecios(e) {
+    if (e) e.preventDefault();
+    const isHidden = preciosSection.classList.contains('hidden');
+    if (isHidden) {
+      preciosSection.classList.remove('hidden');
+      if (togglePreciosHero) {
+        togglePreciosHero.innerHTML = '<i class="fas fa-eye-slash"></i> Ocultar precios';
+        togglePreciosHero.classList.add('active');
+      }
+      setTimeout(() => {
+        preciosSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    } else {
+      preciosSection.classList.add('hidden');
+      if (togglePreciosHero) {
+        togglePreciosHero.innerHTML = '<i class="fas fa-tag"></i> Ver precios';
+        togglePreciosHero.classList.remove('active');
+      }
+    }
+  }
+
+  if (togglePreciosNav) togglePreciosNav.addEventListener('click', togglePrecios);
+  if (togglePreciosHero) togglePreciosHero.addEventListener('click', togglePrecios);
+  if (footerPreciosLink) footerPreciosLink.addEventListener('click', togglePrecios);
+
+  // --- Toggle "En Cuba hoy" ---
+  const cubaSection = document.getElementById('cuba-hoy');
+  const toggleCubaBtn = document.getElementById('toggleCubaBtn');
+  const mundoSection = document.getElementById('mundo-desarrollado');
+  const toggleMundoBtn = document.getElementById('toggleMundoBtn');
+
+  if (toggleCubaBtn) {
+    toggleCubaBtn.addEventListener('click', () => {
+      const isHidden = cubaSection.classList.contains('hidden');
+      // Cerrar la otra
+      if (mundoSection) mundoSection.classList.add('hidden');
+      if (toggleMundoBtn) toggleMundoBtn.innerHTML = '<i class="fas fa-globe-americas"></i> En el mundo desarrollado';
+
+      if (isHidden) {
+        cubaSection.classList.remove('hidden');
+        toggleCubaBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Ocultar Cuba hoy';
+        setTimeout(() => {
+          cubaSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      } else {
+        cubaSection.classList.add('hidden');
+        toggleCubaBtn.innerHTML = '<i class="fas fa-flag"></i> En Cuba hoy';
+      }
+    });
+  }
+
+  // --- Toggle "En el mundo desarrollado" ---
+  if (toggleMundoBtn) {
+    toggleMundoBtn.addEventListener('click', () => {
+      const isHidden = mundoSection.classList.contains('hidden');
+      // Cerrar la otra
+      if (cubaSection) cubaSection.classList.add('hidden');
+      if (toggleCubaBtn) toggleCubaBtn.innerHTML = '<i class="fas fa-flag"></i> En Cuba hoy';
+
+      if (isHidden) {
+        mundoSection.classList.remove('hidden');
+        toggleMundoBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Ocultar mundo desarrollado';
+        setTimeout(() => {
+          mundoSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      } else {
+        mundoSection.classList.add('hidden');
+        toggleMundoBtn.innerHTML = '<i class="fas fa-globe-americas"></i> En el mundo desarrollado';
+      }
+    });
+  }
+
+  // --- Capturar plan seleccionado ---
+  const planHidden = document.getElementById('planSeleccionado');
+  const selectPlanBtns = document.querySelectorAll('.select-plan-btn');
+  selectPlanBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const priceCard = btn.closest('.price-card');
+      if (priceCard) {
+        const plan = priceCard.getAttribute('data-plan');
+        planHidden.value = plan;
+        document.getElementById('contrato').scrollIntoView({ behavior: 'smooth' });
+        const msgDiv = document.getElementById('formMsg');
+        msgDiv.innerHTML = `<span style="color:#1b8c5e;">✨ Has seleccionado el plan <strong>${plan}</strong>. Completa tus datos.</span>`;
+        setTimeout(() => {
+          if (msgDiv.innerHTML.includes('seleccionado')) msgDiv.innerHTML = '';
+        }, 4000);
+      }
+    });
+  });
+
+  // --- Envío del formulario ---
+  const contractForm = document.getElementById('contractForm');
+  const formMsg = document.getElementById('formMsg');
+
+  contractForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nombre = document.getElementById('nombre').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const telefono = document.getElementById('telefono').value.trim();
+    const empresa = document.getElementById('empresa').value.trim();
+    const mensaje = document.getElementById('mensaje').value.trim();
+    const plan = planHidden.value;
+
+    if (!nombre || !email) {
+      formMsg.innerHTML = '<span style="color:#c0392b;">❌ Por favor completa nombre y correo electrónico.</span>';
+      return;
+    }
+
+    const payload = {
+      nombre: nombre,
+      email: email,
+      telefono: telefono || null,
+      empresa: empresa || null,
+      mensaje: mensaje || null,
+      plan: plan || null
+    };
+
+    try {
+      const response = await fetch('/api/contrato', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const result = await response.json();
+      if (response.ok) {
+        formMsg.innerHTML = '<span style="color:#1b8c5e;">✅ ¡Solicitud enviada exitosamente! Te contactaremos pronto.</span>';
+        contractForm.reset();
+        planHidden.value = '';
+      } else if (response.status === 409) {
+        formMsg.innerHTML = `<span style="color:#e67e22;">⚠️ ${result.detail || 'Ya tienes una solicitud pendiente. Pronto te contactaremos.'}</span>`;
+      } else {
+        throw new Error(result.detail || result.message || 'Error en el servidor');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      formMsg.innerHTML = '<span style="color:#c0392b;">❌ Error al enviar la solicitud. Intenta de nuevo más tarde.</span>';
+    }
+  });
+
+  // --- Funciones de scroll ---
+  window.scrollToForm = function() {
+    document.getElementById('contrato').scrollIntoView({ behavior: 'smooth' });
+  };
+  const demoConfirmBtn = document.getElementById('demoConfirmBtn');
+  if (demoConfirmBtn) {
+    demoConfirmBtn.addEventListener('click', () => {
+      document.getElementById('democonfirm').scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+</script>
+</body>
+</html>

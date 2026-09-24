@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <title>📊 Panel de Transacciones - Gestor Bancario</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .btn-export-excel, .btn-export-pdf {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-export-excel {
+            background: linear-gradient(135deg, #1e8449 0%, #27ae60 100%);
+            color: white;
+        }
+
+        .btn-export-excel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 132, 73, 0.4);
+        }
+
+        .btn-export-pdf {
+            background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+            color: white;
+        }
+
+        .btn-export-pdf:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(192, 57, 43, 0.4);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info span {
+            color: #666;
+        }
+
+        .user-info strong {
+            color: #667eea;
+        }
+
+        .logout-btn {
+            background: #f56565;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #e53e3e;
+            transform: translateY(-2px);
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-card .sub-value {
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .stat-card.enviadas .value { color: #f56565; }
+        .stat-card.recibidas .value { color: #48bb78; }
+        .stat-card.balance .value { color: #667eea; }
+        .stat-card.pendientes .value { color: #ed8936; }
+        .stat-card.confirmadas .value { color: #48bb78; }
+
+        .filters-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .filters-section h2 {
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filters-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .filter-group input, .filter-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .filter-group input:focus, .filter-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .filter-group select {
+            cursor: pointer;
+            background-color: white;
+        }
+
+        .btn-filter {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-filter:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .report-options {
+            background: white;
+            border-radius: 15px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .report-options .radio-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-right: 2px solid #e0e0e0;
+            padding-right: 15px;
+        }
+
+        .report-options .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .report-options .radio-group input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .report-options .radio-group .label-todas {
+            color: #555;
+        }
+
+        .report-options .radio-group .label-enviadas {
+            color: #f56565;
+        }
+
+        .report-options .radio-group .label-recibidas {
+            color: #48bb78;
+        }
+
+        .report-options .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .report-options .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 0.95em;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .report-options .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .report-options .title {
+            font-weight: 600;
+            color: #555;
+            margin-right: 10px;
+        }
+
+        .report-options .info-text {
+            color: #888;
+            font-size: 0.85em;
+            margin-left: auto;
+        }
+
+        .transactions-table {
+            background: white;
+            border-radius: 15px;
+            overflow-x: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .subtotal-row td {
+            background-color: #f0f4ff;
+            font-weight: bold;
+            border-top: 2px solid #667eea;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .subtotal-row td:first-child {
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+
+        .subtotal-row td:last-child {
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .badge-enviada {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .badge-recibida {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .badge-pendiente {
+            background: #feebc8;
+            color: #c05621;
+        }
+
+        .badge-confirmada {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .fecha-rapida {
+            min-width: 170px;
+        }
+
+        @media (max-width: 768px) {
+            .filters-row {
+                flex-direction: column;
+            }
+            
+            th, td {
+                padding: 10px;
+                font-size: 0.85em;
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .report-options {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .report-options .radio-group {
+                border-right: none;
+                border-bottom: 2px solid #e0e0e0;
+                padding-right: 0;
+                padding-bottom: 10px;
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .report-options .checkbox-group {
+                width: 100%;
+            }
+
+            .report-options .info-text {
+                margin-left: 0;
+            }
+
+            .fecha-rapida {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <span>🏦</span>
+                <span>Panel de Transacciones</span>
+            </h1>
+            <div class="user-info">
+                <span>👤 <strong id="userName">Cargando...</strong></span>
+                <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-container" id="statsContainer">
+            <div class="stat-card enviadas">
+                <h3>📤 Total Enviadas</h3>
+                <div class="value" id="totalEnviadas">-</div>
+                <div class="sub-value" id="totalEnviadasCount">- transacciones</div>
+            </div>
+            <div class="stat-card recibidas">
+                <h3>📥 Total Recibidas</h3>
+                <div class="value" id="totalRecibidas">-</div>
+                <div class="sub-value" id="totalRecibidasCount">- transacciones</div>
+            </div>
+            <div class="stat-card balance">
+                <h3>💰 Total General</h3>
+                <div class="value" id="balance">-</div>
+                <div class="sub-value" id="balanceLabel">-</div>
+            </div>
+            <div class="stat-card pendientes">
+                <h3>⏳ Pendientes</h3>
+                <div class="value" id="pendientes">-</div>
+                <div class="sub-value" id="pendientesMonto">Monto: -</div>
+            </div>
+            <div class="stat-card confirmadas">
+                <h3>✅ Confirmadas</h3>
+                <div class="value" id="confirmadas">-</div>
+                <div class="sub-value" id="confirmadasMonto">Monto: -</div>
+            </div>
+        </div>
+
+        <!-- Botones para exportar -->
+        <div class="export-buttons">
+            <button class="btn-export-excel" onclick="exportarExcel()">
+                📊 Exportar a Excel
+            </button>
+            <button class="btn-export-pdf" onclick="exportarPDF()">
+                📄 Exportar a PDF
+            </button>
+        </div>
+
+        <!-- Opciones de reporte con radio buttons y checkboxes -->
+        <div class="report-options">
+            <span class="title">📋 Opciones:</span>
+            
+            <!-- RADIO BUTTONS - TIPO DE TRANSACCIÓN -->
+            <div class="radio-group">
+                <span style="font-weight:600;color:#555;font-size:0.9em;">Tipo:</span>
+                <label class="label-todas">
+                    <input type="radio" name="tipoTransaccion" value="todas" checked onchange="aplicarFiltros()">
+                    📋 Todas
+                </label>
+                <label class="label-enviadas">
+                    <input type="radio" name="tipoTransaccion" value="enviadas" onchange="aplicarFiltros()">
+                    📤 Enviadas
+                </label>
+                <label class="label-recibidas">
+                    <input type="radio" name="tipoTransaccion" value="recibidas" onchange="aplicarFiltros()">
+                    📥 Recibidas
+                </label>
+            </div>
+            
+            <!-- CHECKBOXES - AGRUPACIONES -->
+            <div class="checkbox-group">
+                <label>
+                    <input type="checkbox" id="chkTipo" onchange="aplicarFiltros()">
+                    📊 Por Tipo
+                </label>
+                <label>
+                    <input type="checkbox" id="chkOrdenante" onchange="aplicarFiltros()">
+                    📤 Por Ordenante
+                </label>
+                <label>
+                    <input type="checkbox" id="chkBeneficiario" onchange="aplicarFiltros()">
+                    📥 Por Beneficiario
+                </label>
+            </div>
+            <span class="info-text">⚡ Los cambios se aplican automáticamente</span>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filters-section">
+            <h2>🔍 Filtrar Transacciones</h2>
+            <div class="filters-row">
+                <div class="filter-group fecha-rapida">
+                    <label>📅 Rápido</label>
+                    <select id="filtroFechaRapida" onchange="aplicarFechaRapida()">
+                        <option value="">-- Seleccionar --</option>
+                        <option value="hoy">📌 Hoy</option>
+                        <option value="ayer">📌 Ayer</option>
+                        <option value="ultimos7">📌 Últimos 7 días</option>
+                        <option value="ultimos30">📌 Últimos 30 días</option>
+                        <option value="este_mes">📌 Este mes</option>
+                        <option value="mes_pasado">📌 Mes pasado</option>
+                        <option value="personalizado">📅 Personalizado</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>📅 Fecha desde</label>
+                    <input type="text" id="fechaInicio" placeholder="DD/MM/YYYY" class="datepicker">
+                </div>
+                <div class="filter-group">
+                    <label>📅 Fecha hasta</label>
+                    <input type="text" id="fechaFin" placeholder="DD/MM/YYYY" class="datepicker">
+                </div>
+                <div class="filter-group">
+                    <label>🏦 Banco</label>
+                    <input type="text" id="filtroBanco" placeholder="Todos">
+                </div>
+                <div class="filter-group">
+                    <label>💵 Moneda</label>
+                    <select id="filtroMoneda">
+                        <option value="">Todas</option>
+                        <option value="CUP">CUP - Peso Cubano</option>
+                        <option value="USD">USD - Dólar</option>
+                        <option value="EUR">EUR - Euro</option>
+                        <option value="MLC">MLC - Moneda Libremente Convertible</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>📌 Estado</label>
+                    <select id="filtroEstado">
+                        <option value="">Todos</option>
+                        <option value="pendiente">⏳ Pendientes</option>
+                        <option value="confirmada">✅ Confirmadas</option>
+                    </select>
+                </div>
+                <button class="btn-filter" onclick="aplicarFiltros()">🔍 Aplicar Filtros</button>
+                <button class="btn-filter" onclick="limpiarFiltros()">🗑️ Limpiar</button>
+            </div>
+        </div>
+
+        <!-- Tabla de transacciones -->
+        <div class="transactions-table">
+            <div id="loadingState" style="display: none;">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Cargando transacciones...</p>
+                </div>
+            </div>
+            <div id="tableContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = window.location.origin;
+        let token = null;
+        let user = null;
+        let todasLasTransacciones = [];
+        let transaccionesFiltradas = [];
+        let tabActual = 'todas';
+
+        // ========== FUNCIONES DE FECHA ==========
+        function formatearFechaParaInput(fecha) {
+            const dia = String(fecha.getDate()).padStart(2, '0');
+            const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+            const anio = fecha.getFullYear();
+            return `${dia}/${mes}/${anio}`;
+        }
+
+        function sumarDias(fecha, dias) {
+            const resultado = new Date(fecha);
+            resultado.setDate(resultado.getDate() + dias);
+            return resultado;
+        }
+
+        function primerDiaMes(fecha) {
+            return new Date(fecha.getFullYear(), fecha.getMonth(), 1);
+        }
+
+        function ultimoDiaMes(fecha) {
+            return new Date(fecha.getFullYear(), fecha.getMonth() + 1, 0);
+        }
+
+        // ========== FUNCIÓN PARA FECHAS RÁPIDAS ==========
+        function aplicarFechaRapida() {
+            const opcion = document.getElementById('filtroFechaRapida').value;
+            const hoy = new Date();
+            let fechaInicio = null;
+            let fechaFin = null;
+
+            switch(opcion) {
+                case 'hoy':
+                    fechaInicio = hoy;
+                    fechaFin = hoy;
+                    break;
+                case 'ayer':
+                    fechaInicio = sumarDias(hoy, -1);
+                    fechaFin = sumarDias(hoy, -1);
+                    break;
+                case 'ultimos7':
+                    fechaInicio = sumarDias(hoy, -7);
+                    fechaFin = hoy;
+                    break;
+                case 'ultimos30':
+                    fechaInicio = sumarDias(hoy, -30);
+                    fechaFin = hoy;
+                    break;
+                case 'este_mes':
+                    fechaInicio = primerDiaMes(hoy);
+                    fechaFin = hoy;
+                    break;
+                case 'mes_pasado':
+                    const mesPasado = new Date(hoy.getFullYear(), hoy.getMonth() - 1, 1);
+                    fechaInicio = primerDiaMes(mesPasado);
+                    fechaFin = ultimoDiaMes(mesPasado);
+                    break;
+                case 'personalizado':
+                    document.getElementById('fechaInicio').value = '';
+                    document.getElementById('fechaFin').value = '';
+                    return;
+                default:
+                    return;
+            }
+
+            if (fechaInicio && fechaFin) {
+                document.getElementById('fechaInicio').value = formatearFechaParaInput(fechaInicio);
+                document.getElementById('fechaFin').value = formatearFechaParaInput(fechaFin);
+                aplicarFiltros();
+            }
+        }
+
+        // ========== AUTENTICACIÓN ==========
+        function getTokenFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('token');
+        }
+        function getToken() {
+            const urlToken = getTokenFromUrl();
+            if (urlToken) {
+                localStorage.setItem('token', urlToken);
+                return urlToken;
+            }
+            return localStorage.getItem('token');
+        }
+        async function getUserProfile() {
+            token = getToken();
+            if (!token) {
+                window.location.href = '/test';
+                return null;
+            }
+            try {
+                const response = await fetch(`${BASE_URL}/perfil`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    user = await response.json();
+                    document.getElementById('userName').textContent = `${user.nombre} ${user.apellido}`;
+                    return user;
+                } else {
+                    localStorage.removeItem('token');
+                    window.location.href = '/test';
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error perfil:', error);
+                window.location.href = '/test';
+                return null;
+            }
+        }
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/test';
+        }
+
+        // ========== FUNCIONES DE FECHA ==========
+        function normalizarFecha(fechaStr) {
+            if (!fechaStr) return '';
+            if (/^\d{4}-\d{2}-\d{2}$/.test(fechaStr)) return fechaStr;
+            const partes = fechaStr.split('/');
+            if (partes.length === 3) {
+                const [dia, mes, anio] = partes;
+                return `${anio}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
+            }
+            return fechaStr;
+        }
+        function formatearFecha(fechaStr) {
+            if (!fechaStr) return '-';
+            if (fechaStr.includes('/')) return fechaStr;
+            const partes = fechaStr.split('-');
+            if (partes.length === 3) {
+                const [anio, mes, dia] = partes;
+                return `${dia}/${mes}/${anio}`;
+            }
+            return fechaStr;
+        }
+
+        // ========== DATE PICKERS SIN FECHA PREDETERMINADA ==========
+        function initDatePickers() {
+            flatpickr("#fechaInicio", { 
+                locale: "es", 
+                dateFormat: "d/m/Y", 
+                allowInput: true
+            });
+            
+            flatpickr("#fechaFin", { 
+                locale: "es", 
+                dateFormat: "d/m/Y", 
+                allowInput: true
+            });
+        }
+
+        // ========== CARGAR TODAS LAS TRANSACCIONES ==========
+        async function cargarTodasTransacciones() {
+            token = getToken();
+            if (!token) return [];
+            const url = `${BASE_URL}/transacciones/?skip=0&limit=2000`;
+            const response = await fetch(url, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error('Error al cargar transacciones');
+            let data = await response.json();
+            return data.map(t => ({
+                ...t,
+                tipo: t.tipo || (t.monto > 0 ? 'recibida' : 'enviada'),
+                fechaOriginal: normalizarFecha(t.fecha),
+                fecha: formatearFecha(normalizarFecha(t.fecha))
+            }));
+        }
+
+        // ========== APLICAR FILTROS ==========
+        async function aplicarFiltros() {
+            token = getToken();
+            if (!token) return;
+
+            const loadingDiv = document.getElementById('loadingState');
+            const tableContainer = document.getElementById('tableContainer');
+            loadingDiv.style.display = 'block';
+            tableContainer.innerHTML = '';
+
+            try {
+                if (todasLasTransacciones.length === 0) {
+                    todasLasTransacciones = await cargarTodasTransacciones();
+                    console.log('📦 Total transacciones cargadas:', todasLasTransacciones.length);
+                }
+
+                let fechaInicioStr = document.getElementById('fechaInicio')?.value || '';
+                let fechaFinStr = document.getElementById('fechaFin')?.value || '';
+                const banco = document.getElementById('filtroBanco')?.value?.toLowerCase() || '';
+                const moneda = document.getElementById('filtroMoneda')?.value || '';
+                const estado = document.getElementById('filtroEstado')?.value || '';
+                
+                // ===== OBTENER EL TIPO DE TRANSACCIÓN DEL RADIO BUTTON =====
+                const tipoSeleccionado = document.querySelector('input[name="tipoTransaccion"]:checked')?.value || 'todas';
+
+                const fechaInicio = normalizarFecha(fechaInicioStr);
+                const fechaFin = normalizarFecha(fechaFinStr);
+
+                let filtradas = todasLasTransacciones.filter(t => {
+                    const fechaTransaccion = t.fechaOriginal || '';
+                    if (fechaInicio && fechaTransaccion < fechaInicio) return false;
+                    if (fechaFin && fechaTransaccion > fechaFin) return false;
+                    if (banco && !(t.ordenante?.toLowerCase().includes(banco) || t.beneficiario?.toLowerCase().includes(banco))) return false;
+                    if (moneda && t.moneda !== moneda) return false;
+                    if (estado && t.estado !== estado) return false;
+                    
+                    // ===== FILTRAR POR TIPO DE TRANSACCIÓN (SOLO SI NO ES "TODAS") =====
+                    if (tipoSeleccionado !== 'todas') {
+                        if (tipoSeleccionado === 'enviadas' && t.tipo !== 'enviada') return false;
+                        if (tipoSeleccionado === 'recibidas' && t.tipo !== 'recibida') return false;
+                    }
+                    
+                    return true;
+                });
+
+                filtradas.sort((a, b) => (b.fechaOriginal || '').localeCompare(a.fechaOriginal || ''));
+                transaccionesFiltradas = filtradas;
+                actualizarEstadisticas();
+                renderizarTabla();
+            } catch (error) {
+                console.error(error);
+                tableContainer.innerHTML = `<div class="empty-message">❌ Error: ${error.message}</div>`;
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        }
+
+        // ========== ESTADÍSTICAS CORREGIDAS ==========
+        function actualizarEstadisticas() {
+            console.log('📊 ===== ACTUALIZANDO ESTADÍSTICAS =====');
+            
+            if (!transaccionesFiltradas || transaccionesFiltradas.length === 0) {
+                document.getElementById('pendientes').textContent = '0';
+                document.getElementById('confirmadas').textContent = '0';
+                document.getElementById('pendientesMonto').textContent = 'Monto: 0.00';
+                document.getElementById('confirmadasMonto').textContent = 'Monto: 0.00';
+                document.getElementById('totalEnviadas').textContent = '0.00';
+                document.getElementById('totalRecibidas').textContent = '0.00';
+                document.getElementById('balance').textContent = '0.00';
+                document.getElementById('balanceLabel').textContent = 'Total General';
+                document.getElementById('totalEnviadasCount').textContent = '0 transacciones';
+                document.getElementById('totalRecibidasCount').textContent = '0 transacciones';
+                return;
+            }
+            
+            // Obtener el tipo seleccionado
+            const tipoSeleccionado = document.querySelector('input[name="tipoTransaccion"]:checked')?.value || 'todas';
+            let tipoLabel = 'Total General';
+            if (tipoSeleccionado === 'enviadas') tipoLabel = '📤 Enviadas';
+            else if (tipoSeleccionado === 'recibidas') tipoLabel = '📥 Recibidas';
+            else tipoLabel = '📋 Todas';
+            
+            // Filtrar por tipo
+            const enviadas = transaccionesFiltradas.filter(t => t.tipo === 'enviada');
+            const recibidas = transaccionesFiltradas.filter(t => t.tipo === 'recibida');
+            
+            // Calcular totales
+            const totalEnviadas = enviadas.reduce((sum, t) => sum + Number(t.monto || 0), 0);
+            const totalRecibidas = recibidas.reduce((sum, t) => sum + Number(t.monto || 0), 0);
+            
+            // Para pendientes y confirmadas (usando minúsculas)
+            const pendientes = transaccionesFiltradas.filter(t => t.estado === 'pendiente');
+            const confirmadas = transaccionesFiltradas.filter(t => t.estado === 'confirmada');
+            
+            const totalPendientes = pendientes.reduce((sum, t) => sum + Number(t.monto || 0), 0);
+            const totalConfirmadas = confirmadas.reduce((sum, t) => sum + Number(t.monto || 0), 0);
+            
+            // El balance depende del tipo seleccionado
+            let totalGeneral = 0;
+            if (tipoSeleccionado === 'todas') {
+                totalGeneral = totalEnviadas + totalRecibidas;
+            } else if (tipoSeleccionado === 'enviadas') {
+                totalGeneral = totalEnviadas;
+            } else {
+                totalGeneral = totalRecibidas;
+            }
+            
+            console.log('📊 Tipo seleccionado:', tipoLabel);
+            console.log('📊 Total General:', totalGeneral.toFixed(2));
+            console.log('📊 Pendientes:', pendientes.length, 'Monto:', totalPendientes.toFixed(2));
+            console.log('📊 Confirmadas:', confirmadas.length, 'Monto:', totalConfirmadas.toFixed(2));
+            
+            // Actualizar DOM
+            document.getElementById('totalEnviadas').textContent = totalEnviadas.toFixed(2);
+            document.getElementById('totalRecibidas').textContent = totalRecibidas.toFixed(2);
+            document.getElementById('balance').textContent = totalGeneral.toFixed(2);
+            document.getElementById('balanceLabel').textContent = `Total ${tipoLabel}`;
+            
+            document.getElementById('pendientes').textContent = pendientes.length;
+            document.getElementById('confirmadas').textContent = confirmadas.length;
+            
+            document.getElementById('totalEnviadasCount').textContent = `${enviadas.length} transacciones`;
+            document.getElementById('totalRecibidasCount').textContent = `${recibidas.length} transacciones`;
+            document.getElementById('pendientesMonto').textContent = `Monto: ${totalPendientes.toFixed(2)}`;
+            document.getElementById('confirmadasMonto').textContent = `Monto: ${totalConfirmadas.toFixed(2)}`;
+            
+            console.log('📊 ===== FIN ACTUALIZACIÓN =====');
+        }
+
+        // ========== RENDERIZAR TABLA ==========
+        function renderizarTabla() {
+            const container = document.getElementById('tableContainer');
+            if (!transaccionesFiltradas.length) {
+                container.innerHTML = '<div class="empty-message">📭 No hay transacciones con los filtros actuales</div>';
+                return;
+            }
+
+            const mostrarTipo = document.getElementById('chkTipo').checked;
+            const mostrarOrdenante = document.getElementById('chkOrdenante').checked;
+            const mostrarBeneficiario = document.getElementById('chkBeneficiario').checked;
+
+            // Obtener el tipo seleccionado para el título
+            const tipoSeleccionado = document.querySelector('input[name="tipoTransaccion"]:checked')?.value || 'todas';
+            let tipoLabel = 'Todas';
+            if (tipoSeleccionado === 'enviadas') tipoLabel = '📤 Enviadas';
+            else if (tipoSeleccionado === 'recibidas') tipoLabel = '📥 Recibidas';
+            else tipoLabel = '📋 Todas';
+
+            let html = `<div style="padding:10px 15px;background:#f8f9fa;border-bottom:2px solid #667eea;font-weight:600;color:#333;">
+                📊 Mostrando: ${tipoLabel} - Total: ${transaccionesFiltradas.length} transacciones
+            </div>`;
+            html += '<table class="transactions-table" style="width:100%; border-collapse: collapse;">';
+            html += '<thead><tr>';
+            html += '<th>Fecha</th><th>N° Transacción</th><th>Tipo</th><th>Beneficiario</th><th>Ordenante</th><th>Monto</th><th>Moneda</th><th>Estado</th><th>Fecha Confirmación</th>';
+            html += '</tr></thead><tbody>';
+
+            let totalGeneral = 0;
+
+            if (!mostrarTipo && !mostrarOrdenante && !mostrarBeneficiario) {
+                for (const t of transaccionesFiltradas) {
+                    const monto = Number(t.monto || 0);
+                    totalGeneral += monto;
+                    html += generarFilaTransaccion(t);
+                }
+                html += generarFilaTotal(totalGeneral, tipoLabel);
+                html += '</tbody></table>';
+                container.innerHTML = html;
+                return;
+            }
+
+            let ordenAgrupacion = [];
+            if (mostrarTipo) ordenAgrupacion.push({ campo: 'tipo', label: 'Tipo' });
+            if (mostrarOrdenante) ordenAgrupacion.push({ campo: 'ordenante', label: 'Ordenante' });
+            if (mostrarBeneficiario) ordenAgrupacion.push({ campo: 'beneficiario', label: 'Beneficiario' });
+
+            function agrupar(items, nivel) {
+                if (items.length === 0 || nivel >= ordenAgrupacion.length) {
+                    for (const t of items) {
+                        const monto = Number(t.monto || 0);
+                        totalGeneral += monto;
+                        html += generarFilaTransaccion(t);
+                    }
+                    return;
+                }
+
+                const tipoActual = ordenAgrupacion[nivel].campo;
+                const grupos = {};
+
+                for (const t of items) {
+                    let key;
+                    if (tipoActual === 'tipo') {
+                        key = t.tipo === 'enviada' ? '📤 Enviadas' : '📥 Recibidas';
+                    } else if (tipoActual === 'ordenante') {
+                        key = t.ordenante || 'Sin ordenante';
+                    } else if (tipoActual === 'beneficiario') {
+                        key = t.beneficiario || 'Sin beneficiario';
+                    }
+                    if (!grupos[key]) grupos[key] = [];
+                    grupos[key].push(t);
+                }
+
+                const keysOrdenadas = Object.keys(grupos).sort();
+                for (const key of keysOrdenadas) {
+                    const grupoItems = grupos[key];
+                    const subtotal = grupoItems.reduce((sum, t) => sum + Number(t.monto || 0), 0);
+                    
+                    let label = key;
+                    if (tipoActual === 'ordenante') label = `📤 ${key}`;
+                    else if (tipoActual === 'beneficiario') label = `📥 ${key}`;
+
+                    html += `<tr class="subtotal-row">
+                        <td colspan="3" style="text-align: right;">📊 ${label}:</td>
+                        <td></td>
+                        <td></td>
+                        <td><strong>${subtotal.toFixed(2)}</strong></td>
+                        <td colspan="3"></td>
+                    </tr>`;
+
+                    agrupar(grupoItems, nivel + 1);
+                }
+            }
+
+            agrupar(transaccionesFiltradas, 0);
+
+            html += generarFilaTotal(totalGeneral, tipoLabel);
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function generarFilaTransaccion(t) {
+            const monto = Number(t.monto || 0);
+            const tipoClass = t.tipo === 'enviada' ? 'badge-enviada' : 'badge-recibida';
+            const estadoClass = t.estado === 'pendiente' ? 'badge-pendiente' : 'badge-confirmada';
+            let fechaConfirm = '-';
+            if (t.fecha_confirmacion) {
+                fechaConfirm = new Date(t.fecha_confirmacion).toLocaleString();
+            }
+            return `<tr>
+                <td>${t.fecha}</td>
+                <td><strong>${t.numero_transaccion || '-'}</strong></td>
+                <td><span class="badge ${tipoClass}">${t.tipo === 'enviada' ? '📤 Enviada' : '📥 Recibida'}</span></td>
+                <td>${t.beneficiario || '-'}</td>
+                <td>${t.ordenante || '-'}</td>
+                <td><strong>${monto.toFixed(2)}</strong></td>
+                <td>${t.moneda}</td>
+                <td><span class="badge ${estadoClass}">${t.estado === 'pendiente' ? '⏳ Pendiente' : '✅ Confirmada'}</span></td>
+                <td>${fechaConfirm}</td>
+            </tr>`;
+        }
+
+        function generarFilaTotal(total, tipoLabel) {
+            return `<tr class="subtotal-row" style="background-color: #e8edff;">
+                <td colspan="3" style="text-align: right; font-size: 1.1em;">💰 TOTAL ${tipoLabel.toUpperCase()}:</td>
+                <td></td>
+                <td></td>
+                <td style="font-size: 1.1em;"><strong>${total.toFixed(2)}</strong></td>
+                <td colspan="3"></td>
+            </tr>`;
+        }
+
+        // ========== LIMPIAR FILTROS ==========
+        function limpiarFiltros() {
+            document.getElementById('fechaInicio').value = '';
+            document.getElementById('fechaFin').value = '';
+            document.getElementById('filtroBanco').value = '';
+            document.getElementById('filtroMoneda').value = '';
+            document.getElementById('filtroEstado').value = '';
+            document.getElementById('filtroFechaRapida').value = '';
+            aplicarFiltros();
+        }
+
+        // ========== EXPORTAR A EXCEL ==========
+        async function exportarExcel() {
+            if (!transaccionesFiltradas.length) {
+                mostrarMensajeTemporal('⚠️ No hay datos para exportar', 'error');
+                return;
+            }
+
+            const tipoSeleccionado = document.querySelector('input[name="tipoTransaccion"]:checked')?.value || 'todas';
+            let tipoLabel = 'Todas';
+            if (tipoSeleccionado === 'enviadas') tipoLabel = 'Enviadas';
+            else if (tipoSeleccionado === 'recibidas') tipoLabel = 'Recibidas';
+
+            const datos = transaccionesFiltradas.map(t => ({
+                'Fecha': t.fecha || '',
+                'N° Transacción': t.numero_transaccion || '',
+                'Tipo': t.tipo === 'enviada' ? 'Enviada' : 'Recibida',
+                'Beneficiario': t.beneficiario || '',
+                'Ordenante': t.ordenante || '',
+                'Monto': Number(t.monto || 0).toFixed(2),
+                'Moneda': t.moneda || '',
+                'Estado': t.estado || '',
+                'Fecha Confirmación': t.fecha_confirmacion ? new Date(t.fecha_confirmacion).toLocaleString() : ''
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(datos);
+            const wscols = [
+                {wch:12}, {wch:18}, {wch:10}, {wch:25}, {wch:25}, {wch:12}, {wch:8}, {wch:12}, {wch:20}
+            ];
+            ws['!cols'] = wscols;
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, `Transacciones ${tipoLabel}`);
+            XLSX.writeFile(wb, `transacciones_${tipoSeleccionado}_${new Date().toISOString().slice(0,19)}.xlsx`);
+            mostrarMensajeTemporal('✅ Excel exportado correctamente', 'success');
+        }
+
+        // ========== EXPORTAR A PDF - VERSIÓN CORREGIDA ==========// ========== EXPORTAR A PDF - VERSIÓN FINAL CORREGIDA ==========
+        // ========== EXPORTAR A PDF - VERSIÓN MEJORADA ==========
+        async function exportarPDF() {
+            if (!transaccionesFiltradas.length) {
+                mostrarMensajeTemporal('⚠️ No hay datos para exportar', 'error');
+                return;
+            }
+
+            // ===== MOSTRAR MENSAJE DE "GENERANDO..." =====
+            mostrarMensajeGenerando();
+
+            // ===== BLOQUEAR EL BOTÓN PARA EVITAR DOBLE CLIC =====
+            const btnPDF = document.querySelector('.btn-export-pdf');
+            if (btnPDF) {
+                btnPDF.disabled = true;
+                btnPDF.textContent = '⏳ Generando...';
+                btnPDF.style.opacity = '0.6';
+                btnPDF.style.cursor = 'not-allowed';
+            }
+
+            try {
+                // ===== OBTENER EL TIPO SELECCIONADO =====
+                const tipoSeleccionado = document.querySelector('input[name="tipoTransaccion"]:checked')?.value || 'todas';
+                let tipoLabel = '📋 Todas';
+                if (tipoSeleccionado === 'enviadas') tipoLabel = '📤 Enviadas';
+                else if (tipoSeleccionado === 'recibidas') tipoLabel = '📥 Recibidas';
+
+                const mostrarTipo = document.getElementById('chkTipo').checked;
+                const mostrarOrdenante = document.getElementById('chkOrdenante').checked;
+                const mostrarBeneficiario = document.getElementById('chkBeneficiario').checked;
+
+                // ===== OBTENER PERÍODO =====
+                let fechaInicioRaw = document.getElementById('fechaInicio')?.value || '';
+                let fechaFinRaw = document.getElementById('fechaFin')?.value || '';
+
+                let periodoTexto = '';
+                if (fechaInicioRaw && fechaFinRaw) {
+                    periodoTexto = `${fechaInicioRaw} - ${fechaFinRaw}`;
+                } else if (fechaInicioRaw) {
+                    periodoTexto = `Desde ${fechaInicioRaw}`;
+                } else if (fechaFinRaw) {
+                    periodoTexto = `Hasta ${fechaFinRaw}`;
+                } else {
+                    periodoTexto = 'Todos los períodos';
+                }
+
+                // ===== OBTENER AGRUPACIONES ACTIVAS =====
+                let agrupacionesActivas = [];
+                if (mostrarTipo) agrupacionesActivas.push('Por Tipo');
+                if (mostrarOrdenante) agrupacionesActivas.push('Por Ordenante');
+                if (mostrarBeneficiario) agrupacionesActivas.push('Por Beneficiario');
+
+                let agrupacionesTexto = agrupacionesActivas.length > 0 
+                    ? agrupacionesActivas.join(' + ') 
+                    : 'Sin agrupación';
+
+                // Calcular totales
+                const totalMonto = transaccionesFiltradas.reduce((sum, t) => sum + Number(t.monto || 0), 0);
+                const pendientes = transaccionesFiltradas.filter(t => t.estado === 'pendiente');
+                const confirmadas = transaccionesFiltradas.filter(t => t.estado === 'confirmada');
+                
+                const montoPendientes = pendientes.reduce((sum, t) => sum + Number(t.monto || 0), 0);
+                const montoConfirmadas = confirmadas.reduce((sum, t) => sum + Number(t.monto || 0), 0);
+
+                const usuarioNombre = user ? `${user.nombre} ${user.apellido}` : 'Usuario';
+                const fechaActual = new Date().toLocaleDateString();
+
+                // ===== CREAR CONTENIDO PARA PDF =====
+                let htmlContent = `
+                    <div style="padding:20px 25px;font-family:Arial,sans-serif;font-size:11px;background:white;width:1100px;margin:0;border:0;">
+                        
+                        <!-- ENCABEZADO -->
+                        <div style="text-align:center;margin-bottom:18px;">
+                            <h2 style="color:#1e3c72;margin:0 0 5px 0;font-size:20px;font-weight:bold;">
+                                Reporte de Transacciones
+                            </h2>
+                            <h3 style="color:#555;margin:0 0 3px 0;font-size:15px;font-weight:normal;">
+                                ${tipoLabel} - ${periodoTexto}
+                            </h3>
+                            <p style="color:#888;margin:0 0 8px 0;font-size:12px;">
+                                📊 Agrupado por: ${agrupacionesTexto}
+                            </p>
+                            <p style="margin:0;font-size:11px;color:#666;">
+                                Generado el: ${new Date().toLocaleString()}
+                            </p>
+                        </div>
+
+                        <!-- RESUMEN -->
+                        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;background:#f0f0f0;padding:10px 15px;border-radius:6px;margin-bottom:18px;font-size:12px;">
+                            <div><strong>📊 Total:</strong> ${transaccionesFiltradas.length}</div>
+                            <div><strong>💰 Total ${tipoLabel}:</strong> ${totalMonto.toFixed(2)}</div>
+                            <div><strong>⏳ Pendientes:</strong> ${pendientes.length} (${montoPendientes.toFixed(2)})</div>
+                            <div><strong>✅ Confirmadas:</strong> ${confirmadas.length} (${montoConfirmadas.toFixed(2)})</div>
+                        </div>
+
+                        <!-- TABLA -->
+                        <table style="width:100%;border-collapse:collapse;border:1px solid #ddd;font-size:10px;table-layout:fixed;">
+                            <colgroup>
+                                <col style="width:11%;">
+                                <col style="width:13%;">
+                                <col style="width:9%;">
+                                <col style="width:15%;">
+                                <col style="width:15%;">
+                                <col style="width:10%;">
+                                <col style="width:7%;">
+                                <col style="width:10%;">
+                                <col style="width:10%;">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th style="border:1px solid #ddd;padding:6px 4px;background:#f2f2f2;text-align:left;font-weight:bold;font-size:10px;">Fecha</th>
+                                    <th style="border:1px solid #ddd;padding:6px 4px;background:#f2f2f2;text-align:left;font-weight:bold;font-size:10px;">N° Transacción</th>
+                                    <th style="border:1px solid #ddd;padding:6px 4px;background:#f2f2f2;text-align:left;font-weight:bold;font-size:10px;">Tipo</th>
+                                    <th style="border:1px solid #ddd;padding:6px 4px;background:#f2f2f2;text-align:left;font-weight:bold;font-size:10px;">Beneficiario</th>
+                                    <th style="border:1px solid #ddd;padding:6px 4px;background:#f2f2f2;text-align:left;font-weight:bold;font-size:10px;">Ordenante</th>
+                                    <th style="border:1px solid #ddd;padding:6px 4px;background:#f2f2f2;text-align:right;font-weight:bold;font-size:10px;">Monto</th>
+                                    <th style="border:1px solid #ddd;padding:6px 4px;background:#f2f2f2;text-align:left;font-weight:bold;font-size:10px;">Moneda</th>
+                                    <th style="border:1px solid #ddd;padding:6px 4px;background:#f2f2f2;text-align:left;font-weight:bold;font-size:10px;">Estado</th>
+                                    <th style="border:1px solid #ddd;padding:6px 4px;background:#f2f2f2;text-align:left;font-weight:bold;font-size:10px;">Fecha Confirmación</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                function agregarFilaHTML(t) {
+                    const fechaConfirm = t.fecha_confirmacion ? new Date(t.fecha_confirmacion).toLocaleString() : '-';
+                    return `<tr style="page-break-inside:avoid;">
+                        <td style="border:1px solid #ddd;padding:5px 4px;font-size:9px;">${t.fecha || ''}</td>
+                        <td style="border:1px solid #ddd;padding:5px 4px;font-size:9px;">${t.numero_transaccion || '-'}</td>
+                        <td style="border:1px solid #ddd;padding:5px 4px;font-size:9px;">${t.tipo === 'enviada' ? 'Enviada' : 'Recibida'}</td>
+                        <td style="border:1px solid #ddd;padding:5px 4px;font-size:9px;">${t.beneficiario || '-'}</td>
+                        <td style="border:1px solid #ddd;padding:5px 4px;font-size:9px;">${t.ordenante || '-'}</td>
+                        <td style="border:1px solid #ddd;padding:5px 4px;font-size:9px;text-align:right;">${Number(t.monto || 0).toFixed(2)}</td>
+                        <td style="border:1px solid #ddd;padding:5px 4px;font-size:9px;">${t.moneda || ''}</td>
+                        <td style="border:1px solid #ddd;padding:5px 4px;font-size:9px;">${t.estado || ''}</td>
+                        <td style="border:1px solid #ddd;padding:5px 4px;font-size:9px;">${fechaConfirm}</td>
+                    </tr>`;
+                }
+
+                function agregarSubtotalHTML(label, monto) {
+                    return `<tr style="background-color:#f0f4ff;font-weight:bold;page-break-inside:avoid;">
+                        <td colspan="5" style="background-color:#f0f4ff;font-weight:bold;border:1px solid #ddd;padding:5px 4px;text-align:right;font-size:10px;">📊 ${label}:</td>
+                        <td style="background-color:#f0f4ff;font-weight:bold;border:1px solid #ddd;padding:5px 4px;font-size:10px;text-align:right;">${monto.toFixed(2)}</td>
+                        <td colspan="3" style="background-color:#f0f4ff;font-weight:bold;border:1px solid #ddd;padding:5px 4px;"></td>
+                    </tr>`;
+                }
+
+                if (!mostrarTipo && !mostrarOrdenante && !mostrarBeneficiario) {
+                    for (const t of transaccionesFiltradas) {
+                        htmlContent += agregarFilaHTML(t);
+                    }
+                } else {
+                    let ordenAgrupacionPDF = [];
+                    if (mostrarTipo) ordenAgrupacionPDF.push({ campo: 'tipo', label: 'Tipo' });
+                    if (mostrarOrdenante) ordenAgrupacionPDF.push({ campo: 'ordenante', label: 'Ordenante' });
+                    if (mostrarBeneficiario) ordenAgrupacionPDF.push({ campo: 'beneficiario', label: 'Beneficiario' });
+
+                    function procesarGrupos(items, nivel) {
+                        if (items.length === 0 || nivel >= ordenAgrupacionPDF.length) {
+                            for (const t of items) {
+                                htmlContent += agregarFilaHTML(t);
+                            }
+                            return;
+                        }
+
+                        const tipoActual = ordenAgrupacionPDF[nivel].campo;
+                        const grupos = {};
+
+                        for (const t of items) {
+                            let key;
+                            if (tipoActual === 'tipo') {
+                                key = t.tipo === 'enviada' ? '📤 Enviadas' : '📥 Recibidas';
+                            } else if (tipoActual === 'ordenante') {
+                                key = t.ordenante || 'Sin ordenante';
+                            } else if (tipoActual === 'beneficiario') {
+                                key = t.beneficiario || 'Sin beneficiario';
+                            }
+                            if (!grupos[key]) grupos[key] = [];
+                            grupos[key].push(t);
+                        }
+
+                        const keysOrdenadas = Object.keys(grupos).sort();
+                        for (const key of keysOrdenadas) {
+                            const grupoItems = grupos[key];
+                            const subtotal = grupoItems.reduce((sum, t) => sum + Number(t.monto || 0), 0);
+                            
+                            let label = key;
+                            if (tipoActual === 'ordenante') label = `📤 ${key}`;
+                            else if (tipoActual === 'beneficiario') label = `📥 ${key}`;
+
+                            htmlContent += agregarSubtotalHTML(label, subtotal);
+                            procesarGrupos(grupoItems, nivel + 1);
+                        }
+                    }
+
+                    procesarGrupos(transaccionesFiltradas, 0);
+                }
+
+                // ===== TOTAL GENERAL =====
+                htmlContent += `
+                            <tr style="background-color:#e8edff;font-weight:bold;page-break-inside:avoid;">
+                                <td colspan="5" style="background-color:#e8edff;font-weight:bold;border:1px solid #ddd;padding:6px 4px;text-align:right;font-size:13px;">💰 TOTAL ${tipoLabel.toUpperCase()}:</td>
+                                <td style="background-color:#e8edff;font-weight:bold;border:1px solid #ddd;padding:6px 4px;font-size:13px;text-align:right;">${totalMonto.toFixed(2)}</td>
+                                <td colspan="3" style="background-color:#e8edff;font-weight:bold;border:1px solid #ddd;padding:6px 4px;"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+
+                // ===== FIRMA Y PIE DE PÁGINA =====
+                htmlContent += `
+                    <div style="margin-top:50px;border-top:2px solid #333;padding-top:25px;page-break-inside:avoid;">
+                        <div style="display:flex;justify-content:space-between;align-items:flex-end;">
+                            <div style="text-align:left;font-size:11px;color:#666;">
+                                <p style="margin:4px 0;">Este documento es un reporte de transacciones</p>
+                                <p style="margin:4px 0;">generado por el sistema Gestor de Transferencias.</p>
+                                <p style="margin:4px 0;font-size:10px;color:#999;">Fecha de generación: ${new Date().toLocaleString()}</p>
+                            </div>
+                            <div style="text-align:right;">
+                                <p style="margin:4px 0;font-size:13px;">
+                                    <span style="font-weight:bold;">Firma:</span> ___________________________ 
+                                </p>
+                                <p style="margin:4px 0;font-size:13px;font-weight:bold;color:#1e3c72;">
+                                    ${usuarioNombre}
+                                </p>
+                                <p style="margin:4px 0;font-size:12px;color:#666;">
+                                    ${fechaActual}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                htmlContent += `
+                    </div>
+                `;
+
+                // ===== ACTUALIZAR MENSAJE =====
+                actualizarMensajeGenerando('⏳ Generando PDF... (1/3) Preparando contenido');
+
+                // Crear elemento temporal para el PDF
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = htmlContent;
+                tempDiv.style.cssText = 'width:1100px;background:white;padding:0;margin:0;border:0;';
+                document.body.appendChild(tempDiv);
+
+                // ===== ACTUALIZAR MENSAJE =====
+                actualizarMensajeGenerando('⏳ Generando PDF... (2/3) Renderizando');
+
+                // Esperar a que el DOM se actualice
+                await new Promise(resolve => setTimeout(resolve, 400));
+
+                // ===== ACTUALIZAR MENSAJE =====
+                actualizarMensajeGenerando('⏳ Generando PDF... (3/3) Creando archivo');
+
+                // Configuración optimizada para PDF
+                const opt = {
+                    margin:        [0.3, 0.3, 0.3, 0.3],
+                    filename:     `transacciones_${tipoSeleccionado}_${new Date().toISOString().slice(0,19)}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { 
+                        scale: 2.5,
+                        useCORS: true, 
+                        logging: false,
+                        width: 1100,
+                        height: tempDiv.scrollHeight || 1000,
+                        windowWidth: 1100,
+                        windowHeight: tempDiv.scrollHeight || 1000,
+                        x: 0,
+                        y: 0
+                    },
+                    jsPDF:        { 
+                        unit: 'in', 
+                        format: 'a4', 
+                        orientation: 'landscape' 
+                    },
+                    pagebreak:    { 
+                        mode: ['avoid-all', 'css', 'legacy'],
+                        after: '.page-break-after'
+                    }
+                };
+
+                // Generar PDF con timeout
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Tiempo de espera agotado')), 30000)
+                );
+
+                const pdfPromise = html2pdf().set(opt).from(tempDiv).save();
+
+                await Promise.race([pdfPromise, timeoutPromise]);
+
+                // ===== LIMPIAR =====
+                if (tempDiv.parentNode) {
+                    tempDiv.parentNode.removeChild(tempDiv);
+                }
+
+                // ===== OCULTAR MENSAJE =====
+                ocultarMensajeGenerando();
+                mostrarMensajeTemporal('✅ PDF generado correctamente', 'success');
+
+            } catch (error) {
+                console.error('Error PDF:', error);
+                ocultarMensajeGenerando();
+                
+                if (error.message === 'Tiempo de espera agotado') {
+                    mostrarMensajeTemporal('⏳ El PDF está tomando más tiempo de lo esperado. Intenta con menos transacciones.', 'error');
+                } else {
+                    mostrarMensajeTemporal('❌ Error al generar PDF. Intenta de nuevo.', 'error');
+                }
+            } finally {
+                // ===== RESTAURAR BOTÓN =====
+                if (btnPDF) {
+                    btnPDF.disabled = false;
+                    btnPDF.textContent = '📄 Exportar a PDF';
+                    btnPDF.style.opacity = '1';
+                    btnPDF.style.cursor = 'pointer';
+                }
+                // Asegurar que el mensaje se oculte
+                setTimeout(ocultarMensajeGenerando, 500);
+            }
+        }
+
+        // ===== FUNCIONES PARA EL MENSAJE DE "GENERANDO..." =====
+        let mensajeInterval = null;
+        let mensajeElemento = null;
+
+        function mostrarMensajeGenerando() {
+            // Crear el elemento si no existe
+            if (!mensajeElemento) {
+                mensajeElemento = document.createElement('div');
+                mensajeElemento.id = 'mensajeGenerando';
+                mensajeElemento.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: rgba(0, 0, 0, 0.85);
+                    color: white;
+                    padding: 30px 40px;
+                    border-radius: 15px;
+                    font-size: 18px;
+                    font-weight: 600;
+                    z-index: 9999;
+                    text-align: center;
+                    min-width: 300px;
+                    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+                    backdrop-filter: blur(5px);
+                    border: 1px solid rgba(255,255,255,0.1);
+                `;
+                document.body.appendChild(mensajeElemento);
+            }
+
+            // Mostrar el mensaje inicial
+            mensajeElemento.innerHTML = `
+                <div style="font-size: 40px; margin-bottom: 15px;">⏳</div>
+                <div style="margin-bottom: 10px;">Generando PDF</div>
+                <div id="puntosGenerando" style="font-size: 28px; letter-spacing: 5px; color: #667eea;">...</div>
+                <div id="estadoGenerando" style="font-size: 13px; margin-top: 10px; color: #aaa; font-weight: normal;">Preparando contenido...</div>
+                <div style="margin-top: 15px; width: 100%; height: 3px; background: #333; border-radius: 2px; overflow: hidden;">
+                    <div id="barraGenerando" style="width: 0%; height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 2px; transition: width 0.3s ease;"></div>
+                </div>
+            `;
+
+            mensajeElemento.style.display = 'block';
+
+            // Animar los puntos
+            let puntos = 0;
+            if (mensajeInterval) clearInterval(mensajeInterval);
+            mensajeInterval = setInterval(() => {
+                puntos = (puntos + 1) % 4;
+                const puntosStr = '.'.repeat(puntos) + ' '.repeat(3 - puntos);
+                const puntosDiv = document.getElementById('puntosGenerando');
+                if (puntosDiv) puntosDiv.textContent = puntosStr;
+            }, 400);
+
+            // Animar la barra de progreso
+            let progreso = 0;
+            const barraInterval = setInterval(() => {
+                progreso = Math.min(progreso + 2, 95);
+                const barra = document.getElementById('barraGenerando');
+                if (barra) barra.style.width = progreso + '%';
+                if (progreso >= 95) clearInterval(barraInterval);
+            }, 200);
+
+            // Guardar el intervalo de la barra para limpiarlo después
+            mensajeElemento._barraInterval = barraInterval;
+        }
+
+        function actualizarMensajeGenerando(estado) {
+            const estadoDiv = document.getElementById('estadoGenerando');
+            if (estadoDiv) estadoDiv.textContent = estado;
+        }
+
+        function ocultarMensajeGenerando() {
+            if (mensajeInterval) {
+                clearInterval(mensajeInterval);
+                mensajeInterval = null;
+            }
+            if (mensajeElemento) {
+                // Completar la barra antes de ocultar
+                const barra = document.getElementById('barraGenerando');
+                if (barra) barra.style.width = '100%';
+                
+                // Esperar un momento y luego ocultar
+                setTimeout(() => {
+                    if (mensajeElemento) {
+                        mensajeElemento.style.display = 'none';
+                        // Limpiar el intervalo de la barra
+                        if (mensajeElemento._barraInterval) {
+                            clearInterval(mensajeElemento._barraInterval);
+                            mensajeElemento._barraInterval = null;
+                        }
+                    }
+                }, 400);
+            }
+        }
+
+        function mostrarMensajeTemporal(mensaje, tipo) {
+            const msgDiv = document.createElement('div');
+            msgDiv.textContent = mensaje;
+            msgDiv.style.cssText = `position: fixed; bottom: 20px; right: 20px; padding: 12px 20px; background: ${tipo === 'success' ? '#48bb78' : '#f56565'}; color: white; border-radius: 8px; font-weight: 600; z-index: 1000; animation: fadeInOut 3s ease-in-out;`;
+            document.body.appendChild(msgDiv);
+            setTimeout(() => msgDiv.remove(), 3000);
+        }
+
+        // ========== INICIALIZACIÓN ==========
+        async function init() {
+            await getUserProfile();
+            if (user) {
+                initDatePickers();
+                await aplicarFiltros();
+            }
+        }
+        if (!document.querySelector('#customFadeKeyframes')) {
+            const style = document.createElement('style');
+            style.id = 'customFadeKeyframes';
+            style.textContent = `@keyframes fadeInOut { 0% { opacity:0; transform:translateY(20px); } 15% { opacity:1; transform:translateY(0); } 85% { opacity:1; } 100% { opacity:0; transform:translateY(20px); } }`;
+            document.head.appendChild(style);
+        }
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📱 Capturar Transferencia - Gestor Bancario</title>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .navbar .logo {
+            font-size: 1.2em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8em;
+            transition: all 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.85em;
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        /* Tarjeta principal */
+        .card {
+            background: white;
+            border-radius: 0 0 15px 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        /* Formulario */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+            font-size: 0.85em;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.9em;
+            font-family: monospace;
+            resize: vertical;
+        }
+
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #66e6ea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-group select, .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        /* Botones */
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-camera {
+            background: #48bb78;
+            margin-top: 10px;
+        }
+
+        .btn-camera:hover {
+            background: #38a169;
+        }
+
+        /* Modal QR */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.visible {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        #qr-reader {
+            width: 100%;
+        }
+
+        /* Resultados */
+        .result {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result.success {
+            background: #c6f6d5;
+            color: #22543d;
+            display: block;
+        }
+
+        .result.error {
+            background: #fed7d7;
+            color: #c53030;
+            display: block;
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 650px) {
+            .navbar {
+                flex-direction: column;
+            }
+            .nav-links {
+                justify-content: center;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navbar -->
+        <div class="navbar">
+            <div class="logo">
+                <span>🏦</span>
+                <span>Gestor Bancario</span>
+            </div>
+            <div class="nav-links">
+                <a href="/capturar" target="_blank">📱 Capturar</a>
+                <a href="/dashboard" target="_blank">📊 Dashboard</a>
+                <a href="/crear-transaccion" target="_blank">➕ Crear</a>
+                <a href="/subir-imagen" target="_blank">📸 Subir Imagen</a>
+                <a href="/editar-transaccion" target="_blank">✏️ Editar</a>
+                <a href="/clientes" target="_blank">👥 Clientes</a>
+                <a href="/eliminar-transaccion" target="_blank">🗑️ Eliminar</a>
+                <!-- 👇 BOTÓN DE CONFIRMAR (condicional según rol) -->
+                <a href ="/ayuda" target= "_blank">📚 Ayuda</a>
+                <a href="/confirmar" target="_blank" id="btnConfirmar" style="display: none;">✅ Confirmar</a>
+                <a href="/admin" target="_blank" id="btnAdmin" style="display: none;">👑 Admin</a>
+            </div>
+            <div class="user-info">
+                <span>👤 <span id="userName">Cargando...</span></span>
+                <span id="userRol" style="font-size: 0.8em; padding: 2px 8px; border-radius: 12px;"></span>
+                <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <!-- Tarjeta principal de captura -->
+        <div class="card">
+            <h2>
+                <span>📝</span>
+                <span>Texto de la Transferencia</span>
+            </h2>
+            <div class="form-group">
+                <textarea id="texto" rows="6" placeholder="Pega aquí el texto de la transferencia bancaria...&#10;&#10;Ejemplo:&#10;Banco Popular de Ahorro: Transferencia completada. Fecha: 17/03/2026 Beneficiario: 9205129970539210 Ordenante: 5354882197 Monto: 10000.00 CUP Nro. Transaccion: BR600CNNS7997"></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tipo de Transferencia</label>
+                    <select id="tipo">
+                        <option value="RECIBIDA">📥 Recibida</option>
+                        <option value="ENVIADA">📤 Enviada</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Descripción (Nombre del cliente)</label>
+                    <input type="text" id="descripcion" placeholder="Ej: Juan Pérez">
+                </div>
+            </div>
+
+            <button class="btn-primary btn-camera" onclick="abrirScannerQR()">
+                📷 Escanear QR del Carné de Identidad
+            </button>
+
+            <button class="btn-primary" id="enviarBtn" onclick="enviarTransferencia()">
+                📤 Enviar Transferencia
+            </button>
+
+            <div id="resultado" class="result"></div>
+        </div>
+    </div>
+
+    <!-- Modal QR -->
+    <div id="qrModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📷 Escanear QR del Carné</h3>
+                <button class="close-modal" onclick="cerrarScannerQR()">&times;</button>
+            </div>
+            <div id="qr-reader"></div>
+            <div id="qr-resultado" style="margin-top: 15px; display: none;">
+                <p><strong>📝 Texto del QR:</strong></p>
+                <p id="qr-text" style="background: #f0f0f0; padding: 10px; border-radius: 8px; word-break: break-all;"></p>
+                <button class="btn-primary" onclick="usarTextoQR()">✅ Usar este texto</button>
+                <button onclick="cerrarScannerQR()">❌ Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        //const BASE_URL = 'http://localhost:8000';
+        const BASE_URL = window.location.origin;
+        let token = null;
+        let user = null;
+        let html5QrCode = null;
+        let ultimoTextoQR = null;
+
+        // ========== AUTENTICACIÓN ==========
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        async function getUserProfile() {
+            token = getToken();
+            if (!token) {
+                window.location.href = '/test';
+                return null;
+            }
+
+            try {
+                const response = await fetch(`${BASE_URL}/perfil`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    user = await response.json();
+                    document.getElementById('userName').textContent = `${user.nombre} ${user.apellido}`;
+                    return user;
+                } else {
+                    localStorage.removeItem('token');
+                    window.location.href = '/test';
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                window.location.href = '/test';
+                return null;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/test';
+        }
+
+        // ========== ENVIAR TRANSFERENCIA ==========
+        async function enviarTransferencia() {
+            const texto = document.getElementById('texto').value.trim();
+            const tipo = document.getElementById('tipo').value;
+            const descripcionManual = document.getElementById('descripcion').value.trim();
+            const resultadoDiv = document.getElementById('resultado');
+            const enviarBtn = document.getElementById('enviarBtn');
+
+            if (!texto) {
+                mostrarResultado('❌ El texto de la transferencia no puede estar vacío', false);
+                return;
+            }
+
+            enviarBtn.disabled = true;
+            enviarBtn.innerHTML = '<span class="loading"></span> Procesando...';
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('texto', texto);
+                formData.append('tipo', tipo);
+                formData.append('token', token);
+                if (descripcionManual) formData.append('descripcion', descripcionManual);
+
+                const response = await fetch(`${BASE_URL}/transacciones/recibir`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    mostrarResultado(`✅ Transferencia guardada correctamente! ID: ${data.id}`, true);
+                    // Limpiar solo la descripción
+                    document.getElementById('descripcion').value = '';
+                } else {
+                    let errorMsg = data.detail;
+                    if (Array.isArray(data.detail)) {
+                        errorMsg = data.detail.map(e => e.msg).join(', ');
+                    }
+                    mostrarResultado(`❌ Error: ${errorMsg}`, false);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarResultado(`❌ Error de conexión: ${error.message}`, false);
+            } finally {
+                enviarBtn.disabled = false;
+                enviarBtn.innerHTML = '📤 Enviar Transferencia';
+            }
+            window.location.reload();
+        }
+
+        function mostrarResultado(mensaje, esExito) {
+            const resultadoDiv = document.getElementById('resultado');
+            resultadoDiv.textContent = mensaje;
+            resultadoDiv.className = `result ${esExito ? 'success' : 'error'}`;
+            setTimeout(() => {
+                resultadoDiv.style.display = 'none';
+                resultadoDiv.className = 'result';
+            }, 5000);
+        }
+
+        // ========== ESCÁNER QR ==========
+        async function abrirScannerQR() {
+            const modal = document.getElementById('qrModal');
+            modal.classList.add('visible');
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert("Tu navegador no soporta acceso a la cámara");
+                cerrarScannerQR();
+                return;
+            }
+
+            html5QrCode = new Html5Qrcode("qr-reader");
+
+            const config = {
+                fps: 10,
+                qrbox: { width: 250, height: 250 },
+                aspectRatio: 1.0
+            };
+
+            try {
+                await html5QrCode.start(
+                    { facingMode: "environment" },
+                    config,
+                    (decodedText) => {
+                        console.log("QR detectado:", decodedText);
+                        ultimoTextoQR = decodedText;
+                        document.getElementById('qr-text').textContent = decodedText;
+                        document.getElementById('qr-resultado').style.display = 'block';
+                        if (html5QrCode) {
+                            html5QrCode.stop();
+                            html5QrCode = null;
+                        }
+                    },
+                    (error) => {}
+                );
+            } catch (err) {
+                console.error("Error al iniciar cámara:", err);
+                alert("No se pudo acceder a la cámara. Verifica los permisos.");
+                cerrarScannerQR();
+            }
+        }
+
+        function cerrarScannerQR() {
+            if (html5QrCode) {
+                html5QrCode.stop();
+                html5QrCode = null;
+            }
+            document.getElementById('qrModal').classList.remove('visible');
+            document.getElementById('qr-resultado').style.display = 'none';
+            ultimoTextoQR = null;
+        }
+
+        function usarTextoQR() {
+            if (ultimoTextoQR) {
+                const descripcionField = document.getElementById('descripcion');
+                const textoActual = descripcionField.value;
+                
+                let nombre = ultimoTextoQR;
+                const nombreMatch = ultimoTextoQR.match(/(?:Nombre|NOMBRE|nombre)[:\s]*([A-Za-zÀ-ÿ\s]+)/);
+                if (nombreMatch) {
+                    nombre = nombreMatch[1].trim();
+                }
+                
+                if (textoActual) {
+                    descripcionField.value = textoActual + " | " + nombre;
+                } else {
+                    descripcionField.value = nombre;
+                }
+                
+                cerrarScannerQR();
+                mostrarResultado(`✅ Nombre "${nombre}" agregado a la descripción`, true);
+            }
+        }
+        // ========== MOSTRAR BOTONES SEGÚN ROL ==========
+        function mostrarBotonesPorRol(rol) {
+            const btnConfirmar = document.getElementById('btnConfirmar');
+            const btnAdmin = document.getElementById('btnAdmin');
+            const userRolSpan = document.getElementById('userRol');
+            
+            // Mostrar badge de rol
+            if (userRolSpan) {
+                userRolSpan.textContent = rol === 'admin' ? '👑 Admin' : (rol === 'contador' ? '✅ Contador' : '👤 Usuario');
+                userRolSpan.className = `badge-${rol}`;
+            }
+            
+            // Mostrar/ocultar botones según rol
+            if (btnConfirmar) {
+                btnConfirmar.style.display = (rol === 'contador' || rol === 'admin') ? 'inline-block' : 'none';
+            }
+            
+            if (btnAdmin) {
+                btnAdmin.style.display = rol === 'admin' ? 'inline-block' : 'none';
+            }
+        }
+
+        // Modificar getUserProfile para incluir esto
+        async function getUserProfile() {
+            token = getToken();
+            if (!token) {
+                window.location.href = '/test';
+                return null;
+            }
+
+            try {
+                const response = await fetch(`${BASE_URL}/perfil`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    user = await response.json();
+                    document.getElementById('userName').textContent = `${user.nombre} ${user.apellido}`;
+                    
+                    // 👇 Mostrar botones según el rol
+                    mostrarBotonesPorRol(user.rol);
+                    
+                    return user;
+                } else {
+                    localStorage.removeItem('token');
+                    window.location.href = '/test';
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                window.location.href = '/test';
+                return null;
+            }
+        }
+
+        // ========== INICIALIZACIÓN ==========
+        async function init() {
+            await getUserProfile();
+        }
+
+        init();
+    </script>
+</body>
+</html>

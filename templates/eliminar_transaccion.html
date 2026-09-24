@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🗑️ Eliminar Transferencias</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header h1 {
+            color: #c53030;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn, .btn-dashboard {
+            background: #f56565;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .btn-dashboard {
+            background: #4299e1;
+        }
+
+        /* Filtros */
+        .filters-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .filters-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .filter-group input, .filter-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .filter-group input:focus, .filter-group select:focus {
+            outline: none;
+            border-color: #c53030;
+        }
+
+        .btn-filter {
+            background: #c53030;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-filter:hover {
+            background: #9b2c2c;
+            transform: translateY(-2px);
+        }
+
+        .btn-clear {
+            background: #718096;
+        }
+
+        .btn-clear:hover {
+            background: #4a5568;
+        }
+
+        /* Tabla */
+        .transactions-table {
+            background: white;
+            border-radius: 15px;
+            overflow-x: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+
+        .badge-recibida {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .badge-enviada {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .btn-eliminar {
+            background: #c53030;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-eliminar:hover {
+            background: #9b2c2c;
+            transform: scale(1.05);
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #c53030;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.visible {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .btn-confirmar {
+            background: #c53030;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-cancelar {
+            background: #a0aec0;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .filters-row {
+                flex-direction: column;
+            }
+            th, td {
+                font-size: 0.75em;
+                padding: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <span>🗑️</span>
+                <span>Eliminar Transferencias</span>
+                <span style="font-size: 0.6em; color: #666;">(⚠️ Esta acción no se puede deshacer)</span>
+            </h1>
+            <div class="user-info">
+                <span>👤 <strong id="userName">Cargando...</strong></span>
+                <a href="/dashboard" class="btn-dashboard">📊 Dashboard</a>
+                <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filters-section">
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label>🔢 Buscar por N° Transacción</label>
+                    <input type="text" id="filtroNumero" placeholder="Ej: BR600CNNS7997">
+                </div>
+                <div class="filter-group">
+                    <label>📅 Fecha desde</label>
+                    <input type="text" id="fechaInicio" placeholder="DD/MM/YYYY" class="datepicker">
+                </div>
+                <div class="filter-group">
+                    <label>📅 Fecha hasta</label>
+                    <input type="text" id="fechaFin" placeholder="DD/MM/YYYY" class="datepicker">
+                </div>
+                <div class="filter-group">
+                    <label>🏦 Beneficiario</label>
+                    <input type="text" id="filtroBeneficiario" placeholder="Cuenta destino">
+                </div>
+                <button class="btn-filter" onclick="buscarTransacciones()">🔍 Buscar</button>
+                <button class="btn-filter btn-clear" onclick="limpiarFiltros()">🗑️ Limpiar</button>
+            </div>
+        </div>
+
+        <!-- Tabla de resultados -->
+        <div class="transactions-table">
+            <div id="loadingState" style="display: none;">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Buscando transacciones...</p>
+                </div>
+            </div>
+            <div id="tableContainer"></div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <h3 style="color: #c53030; margin-bottom: 15px;">⚠️ Confirmar eliminación</h3>
+            <p id="modalMessage">¿Estás seguro de que deseas eliminar esta transacción?</p>
+            <p style="font-size: 0.85em; color: #666; margin-top: 10px;">Esta acción no se puede deshacer.</p>
+            <div class="modal-buttons">
+                <button class="btn-confirmar" onclick="confirmarEliminacion()">Sí, eliminar</button>
+                <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        //const BASE_URL = 'http://localhost:8000';
+        const BASE_URL = window.location.origin;
+        let token = null;
+        let user = null;
+        let transaccionAEliminar = null;
+
+        // ========== AUTENTICACIÓN ==========
+        function getToken() {
+            const params = new URLSearchParams(window.location.search);
+            const urlToken = params.get('token');
+            if (urlToken) {
+                localStorage.setItem('token', urlToken);
+                return urlToken;
+            }
+            return localStorage.getItem('token');
+        }
+
+        async function getUserProfile() {
+            token = getToken();
+            if (!token) {
+                window.location.href = '/test';
+                return null;
+            }
+
+            try {
+                const response = await fetch(`${BASE_URL}/perfil`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    user = await response.json();
+                    document.getElementById('userName').textContent = `${user.nombre} ${user.apellido}`;
+                    return user;
+                } else {
+                    localStorage.removeItem('token');
+                    window.location.href = '/test';
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                window.location.href = '/test';
+                return null;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/test';
+        }
+
+        // ========== DATE PICKERS ==========
+        function initDatePickers() {
+            flatpickr(".datepicker", {
+                locale: "es",
+                dateFormat: "d/m/Y",
+                allowInput: true,
+                altInput: true,
+                altFormat: "d/m/Y"
+            });
+        }
+
+        // ========== BUSCAR TRANSACCIONES ==========
+        async function buscarTransacciones() {
+            if (!token) return;
+
+            const filtroNumero = document.getElementById('filtroNumero')?.value || '';
+            const fechaInicio = document.getElementById('fechaInicio')?.value || '';
+            const fechaFin = document.getElementById('fechaFin')?.value || '';
+            const filtroBeneficiario = document.getElementById('filtroBeneficiario')?.value || '';
+
+            const loadingDiv = document.getElementById('loadingState');
+            const tableContainer = document.getElementById('tableContainer');
+            
+            if (loadingDiv) loadingDiv.style.display = 'block';
+            if (tableContainer) tableContainer.innerHTML = '';
+
+            try {
+                let transacciones = [];
+                
+                // Si hay número de transacción, buscar por él
+                if (filtroNumero) {
+                    const params = new URLSearchParams();
+                    params.append('q', filtroNumero);
+                    const url = `${BASE_URL}/transacciones/buscar?${params.toString()}`;
+                    const response = await fetch(url, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (response.ok) {
+                        transacciones = await response.json();
+                    }
+                } else {
+                    // Búsqueda por fechas
+                    const params = new URLSearchParams();
+                    params.append('skip', '0');
+                    params.append('limit', '200');
+                    if (fechaInicio) params.append('fecha_inicio', fechaInicio);
+                    if (fechaFin) params.append('fecha_fin', fechaFin);
+                    
+                    const url = `${BASE_URL}/transacciones/?${params.toString()}`;
+                    const response = await fetch(url, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (response.ok) {
+                        transacciones = await response.json();
+                    }
+                }
+                
+                // Filtrar por beneficiario
+                if (filtroBeneficiario && transacciones.length > 0) {
+                    transacciones = transacciones.filter(t => 
+                        t.beneficiario && t.beneficiario.includes(filtroBeneficiario)
+                    );
+                }
+                
+                // Ordenar por fecha
+                transacciones.sort((a, b) => {
+                    const fechaA = a.fecha ? a.fecha.split('/').reverse().join('-') : '';
+                    const fechaB = b.fecha ? b.fecha.split('/').reverse().join('-') : '';
+                    return fechaB.localeCompare(fechaA);
+                });
+                
+                mostrarResultados(transacciones);
+
+            } catch (error) {
+                console.error('Error:', error);
+                if (tableContainer) {
+                    tableContainer.innerHTML = `<div class="empty-message">❌ Error: ${error.message}</div>`;
+                }
+            } finally {
+                if (loadingDiv) loadingDiv.style.display = 'none';
+            }
+        }
+
+        function mostrarResultados(transacciones) {
+            const tableContainer = document.getElementById('tableContainer');
+            
+            if (transacciones.length === 0) {
+                tableContainer.innerHTML = `<div class="empty-message">📭 No se encontraron transacciones</div>`;
+                return;
+            }
+            
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>N° Transacción</th>
+                            <th>Beneficiario</th>
+                            <th>Monto</th>
+                            <th>Moneda</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            for (const t of transacciones) {
+                const tipoText = t.tipo === 'recibida' ? '📥 Recibida' : '📤 Enviada';
+                const tipoClass = t.tipo === 'recibida' ? 'badge-recibida' : 'badge-enviada';
+                
+                html += `
+                    <tr>
+                        <td>${t.fecha || '-'}</td>
+                        <td><strong>${t.numero_transaccion || '-'}</strong></td>
+                        <td>${t.beneficiario || '-'}</td>
+                        <td><strong>${(t.monto || 0).toFixed(2)}</strong></td>
+                        <td>${t.moneda}</td>
+                        <td><span class="badge ${tipoClass}">${tipoText}</span></td>
+                        <td><span class="badge">${t.estado || '-'}</span></td>
+                        <td><button class="btn-eliminar" onclick="abrirModal(${t.id}, '${t.numero_transaccion}')">
+                            🗑️ Eliminar
+                        </button></td>
+                    </tr>
+                `;
+            }
+            
+            html += `
+                    </tbody>
+                </table>
+            `;
+            
+            tableContainer.innerHTML = html;
+        }
+
+        // ========== ELIMINAR TRANSACCIÓN ==========
+        function abrirModal(id, numeroTransaccion) {
+            transaccionAEliminar = id;
+            document.getElementById('modalMessage').innerHTML = `¿Estás seguro de que deseas eliminar la transacción <strong>${numeroTransaccion}</strong>?`;
+            document.getElementById('confirmModal').classList.add('visible');
+        }
+
+        function cerrarModal() {
+            document.getElementById('confirmModal').classList.remove('visible');
+            transaccionAEliminar = null;
+        }
+
+        async function confirmarEliminacion() {
+            if (!transaccionAEliminar) return;
+            
+            try {
+                const response = await fetch(`${BASE_URL}/transacciones/${transaccionAEliminar}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    mostrarMensajeTemporal(`✅ ${result.message}`, 'success');
+                    cerrarModal();
+                    buscarTransacciones(); // Recargar lista
+                } else {
+                    // 👇 Mostrar mensaje amigable sin lanzar error
+                    mostrarMensajeTemporal(`⚠️ ${result.message}`, 'warning');
+                    cerrarModal();
+                    // Recargar para actualizar estado visual si es necesario
+                    setTimeout(() => buscarTransacciones(), 1500);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarMensajeTemporal(`❌ Error de conexión: ${error.message}`, 'error');
+                cerrarModal();
+            }
+        }
+
+        // Agregar estilo para mensaje de advertencia
+        function mostrarMensajeTemporal(mensaje, tipo) {
+            const msgDiv = document.createElement('div');
+            msgDiv.textContent = mensaje;
+            
+            let bgColor = '#48bb78'; // success - verde
+            if (tipo === 'error') bgColor = '#f56565'; // error - rojo
+            if (tipo === 'warning') bgColor = '#ed8936'; // warning - naranja
+            
+            msgDiv.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                background: ${bgColor};
+                color: white;
+                border-radius: 8px;
+                font-weight: 600;
+                z-index: 1000;
+                animation: fadeInOut 3s ease-in-out;
+            `;
+            document.body.appendChild(msgDiv);
+            setTimeout(() => msgDiv.remove(), 3000);
+        }
+
+        function limpiarFiltros() {
+            document.getElementById('filtroNumero').value = '';
+            document.getElementById('fechaInicio').value = '';
+            document.getElementById('fechaFin').value = '';
+            document.getElementById('filtroBeneficiario').value = '';
+            buscarTransacciones();
+        }
+
+        // ========== INICIALIZACIÓN ==========
+        async function init() {
+            await getUserProfile();
+            if (user) {
+                initDatePickers();
+                buscarTransacciones();
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

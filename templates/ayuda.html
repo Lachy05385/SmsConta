@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📚 Ayuda - Gestor Bancario</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container { max-width: 900px; margin: 0 auto; }
+
+        /* Navbar */
+        .navbar {
+            background: white;
+            padding: 12px 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .navbar .logo {
+            font-size: 1.2em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #333;
+        }
+
+        .nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .nav-links a {
+            background: #f0f2f5;
+            color: #333;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8em;
+            transition: all 0.3s;
+        }
+
+        .nav-links a:hover { background: #667eea; color: white; transform: translateY(-2px); }
+
+        .nav-links a.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+
+        /* Tarjeta */
+        .card {
+            background: white;
+            border-radius: 0 0 15px 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #333;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        /* Acordeón */
+        .accordion-item { border: 1px solid #e0e0e0; border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+
+        .accordion-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #333;
+            transition: background 0.2s;
+        }
+
+        .accordion-header:hover { background: #eef1f5; }
+
+        .accordion-header .icon { font-size: 1.2em; transition: transform 0.3s; }
+        .accordion-header.active .icon { transform: rotate(180deg); }
+
+        .accordion-content {
+            display: none;
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .accordion-content.active { display: block; }
+
+        /* Pasos */
+        .step { display: flex; gap: 15px; margin-bottom: 20px; align-items: flex-start; }
+
+        .step-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .step-content { flex: 1; }
+        .step-content h4 { margin-bottom: 8px; color: #333; }
+        .step-content p { color: #555; line-height: 1.6; margin-bottom: 10px; }
+        .step-content img { max-width: 100%; border-radius: 10px; border: 1px solid #e0e0e0; margin-top: 10px; }
+
+        .placeholder-img {
+            background: #f0f2f5;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            color: #888;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        /* Cajas */
+        .info-box { background: #ebf8ff; border-left: 4px solid #4299e1; padding: 15px; border-radius: 8px; margin: 15px 0; color: #2b6cb0; }
+        .warning-box { background: #fffaf0; border-left: 4px solid #ed8936; padding: 15px; border-radius: 8px; margin: 15px 0; color: #c05621; }
+        .success-box { background: #f0fff4; border-left: 4px solid #48bb78; padding: 15px; border-radius: 8px; margin: 15px 0; color: #276749; }
+
+        /* Botones */
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+
+        /* Grid de features */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .feature-card .icon { font-size: 1.5em; margin-bottom: 8px; }
+        .feature-card h5 { color: #333; margin-bottom: 6px; font-size: 0.95em; }
+        .feature-card p { color: #666; font-size: 0.85em; line-height: 1.5; }
+
+        @media (max-width: 650px) {
+            .navbar { flex-direction: column; }
+            .nav-links { justify-content: center; }
+            .step { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navbar -->
+        <div class="navbar">
+            <div class="logo">
+                <span>🏦</span>
+                <span>Gestor Bancario</span>
+            </div>
+            <div class="nav-links">
+                <a href="/capturar">📱 Capturar</a>
+                <a href="/dashboard">📊 Dashboard</a>
+                <a href="/crear-transaccion">➕ Crear</a>
+                <a href="/subir-imagen">📸 Subir Imagen</a>
+                <a href="/editar-transaccion">✏️ Editar</a>
+                <a href="/clientes">👥 Clientes</a>
+                <a href="/confirmar" id="btnConfirmar" style="display:none;">✅ Confirmar</a>
+                <a href="/admin" id="btnAdmin" style="display:none;">👑 Admin</a>
+                <a href="/ayuda" class="active">📚 Ayuda</a>
+            </div>
+        </div>
+
+        <!-- Tarjeta principal -->
+        <div class="card">
+            <h2>
+                <span>📚</span>
+                <span>Centro de Ayuda</span>
+            </h2>
+            <p style="color: #666; margin-bottom: 20px;">
+                Guías paso a paso para usar el Gestor Bancario. Haz clic en cada tema para ver las instrucciones.
+            </p>
+
+            <!-- ========== ACORDEÓN 1: CAPTURAR ========== -->
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>📱 Capturar Transferencia</span>
+                    <span class="icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>Copia el texto del mensaje bancario</h4>
+                            <p>Copia el mensaje de texto completo que recibiste del banco. Ejemplo:</p>
+                            <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 0.85em;">
+                                Banco Popular de Ahorro: Transferencia completada. Fecha: 17/03/2026 Beneficiario: 9205129970539210 Ordenante: 5354882197 Monto: 10000.00 CUP Nro. Transaccion: BR600CNNS7997
+                            </div>
+                            <div class="placeholder-img">📸 [Captura: campo de texto con el mensaje pegado]</div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>Pega el texto en el campo correspondiente</h4>
+                            <p>En la pantalla de <strong>Capturar</strong>, pega el texto en el área de "Texto de la Transferencia".</p>
+                            <div class="placeholder-img">📸 [Captura: campo de texto con el mensaje]</div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>Selecciona el tipo y añade descripción</h4>
+                            <p>Elige si es <strong>Recibida</strong> o <strong>Enviada</strong>, y opcionalmente añade el nombre del cliente.</p>
+                            <div class="placeholder-img">📸 [Captura: selectores de tipo y descripción]</div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>Escanear QR del carné (opcional)</h4>
+                            <p>Si tienes el carné del cliente, puedes escanear el QR para extraer su nombre automáticamente.</p>
+                            <div class="placeholder-img">📸 [Captura: modal de escaneo QR]</div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <h4>Envía la transferencia</h4>
+                            <p>Haz clic en <strong>📤 Enviar Transferencia</strong>. El sistema procesará el texto y guardará los datos.</p>
+                            <div class="success-box">
+                                <strong>✅ Tip:</strong> Si el texto no se procesa bien, verifica que hayas copiado el mensaje completo.
+                            </div>
+                            <div class="placeholder-img">📸 [Captura: botón de enviar y mensaje de éxito]</div>
+                        </div>
+                    </div>
+
+                    <a href="/capturar" class="btn-primary">Ir a Capturar →</a>
+                </div>
+            </div>
+
+            <!-- ========== ACORDEÓN 2: DASHBOARD (ACTUALIZADO) ========== -->
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>📊 Dashboard - Ver y Filtrar Transacciones</span>
+                    <span class="icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="info-box">
+                        <strong>💡 ¿Qué es el Dashboard?</strong> Es el panel principal donde ves todas tus transacciones, estadísticas y puedes filtrarlas por fecha, banco, moneda o estado.
+                    </div>
+
+                    <!-- PASO 1 -->
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>Accede al Dashboard</h4>
+                            <p>Haz clic en <strong>📊 Dashboard</strong> en el menú superior. Verás el panel con estadísticas y la tabla de transacciones.</p>
+                            <div class="placeholder-img">📸 [Captura: vista general del dashboard con estadísticas y tabla]</div>
+                        </div>
+                    </div>
+
+                    <!-- PASO 2 -->
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>Interpreta las estadísticas superiores</h4>
+                            <p>En la parte superior verás 5 tarjetas con información clave:</p>
+                            <div class="features-grid">
+                                <div class="feature-card">
+                                    <div class="icon">📤</div>
+                                    <h5>Total Enviadas</h5>
+                                    <p>Monto total de las transferencias que enviaste.</p>
+                                </div>
+                                <div class="feature-card">
+                                    <div class="icon">📥</div>
+                                    <h5>Total Recibidas</h5>
+                                    <p>Monto total de las transferencias que recibiste.</p>
+                                </div>
+                                <div class="feature-card">
+                                    <div class="icon">💰</div>
+                                    <h5>Total General</h5>
+                                    <p>Suma de enviadas + recibidas según el filtro activo.</p>
+                                </div>
+                                <div class="feature-card">
+                                    <div class="icon">⏳</div>
+                                    <h5>Pendientes</h5>
+                                    <p>Transacciones que aún no confirmas contra el extracto bancario.</p>
+                                </div>
+                                <div class="feature-card">
+                                    <div class="icon">✅</div>
+                                    <h5>Confirmadas</h5>
+                                    <p>Transacciones que ya verificaste en el extracto.</p>
+                                </div>
+                            </div>
+                            <div class="placeholder-img">📸 [Captura: las 5 tarjetas de estadísticas]</div>
+                        </div>
+                    </div>
+
+                    <!-- PASO 3 -->
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>Usa las opciones de reporte</h4>
+                            <p>Debajo de las estadísticas verás dos grupos de controles:</p>
+                            <p><strong>🔘 Radio buttons (Tipo):</strong> Filtra entre <em>Todas</em>, <em>Enviadas</em> o <em>Recibidas</em>. El sistema actualiza automáticamente la tabla y las estadísticas.</p>
+                            <p><strong>☑️ Checkboxes (Agrupaciones):</strong> Marca <em>Por Tipo</em>, <em>Por Ordenante</em> o <em>Por Beneficiario</em> para agrupar las filas con subtotales.</p>
+                            <div class="placeholder-img">📸 [Captura: sección de radio buttons y checkboxes]</div>
+                        </div>
+                    </div>
+
+                    <!-- PASO 4 -->
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>Aplica filtros de búsqueda</h4>
+                            <p>En la sección <strong>🔍 Filtrar Transacciones</strong> puedes combinar varios filtros:</p>
+                            <ul style="margin-left: 20px; line-height: 1.8; color: #555;">
+                                <li><strong>📅 Rápido:</strong> Hoy, Ayer, Últimos 7 días, Últimos 30 días, Este mes, Mes pasado.</li>
+                                <li><strong>📅 Fecha desde / hasta:</strong> Selecciona un rango personalizado con el calendario.</li>
+                                <li><strong>🏦 Banco:</strong> Escribe el nombre del banco o entidad.</li>
+                                <li><strong>💵 Moneda:</strong> CUP, USD, EUR o MLC.</li>
+                                <li><strong>📌 Estado:</strong> Pendientes o Confirmadas.</li>
+                            </ul>
+                            <p>Haz clic en <strong>🔍 Aplicar Filtros</strong> para actualizar la tabla, o en <strong>🗑️ Limpiar</strong> para reiniciar todo.</p>
+                            <div class="placeholder-img">📸 [Captura: sección de filtros con fecha, banco, moneda y estado]</div>
+                        </div>
+                    </div>
+
+                    <!-- PASO 5 -->
+                    <div class="step">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <h4>Interpreta la tabla de transacciones</h4>
+                            <p>Cada fila muestra:</p>
+                            <ul style="margin-left: 20px; line-height: 1.8; color: #555;">
+                                <li><strong>Fecha:</strong> Día de la transacción.</li>
+                                <li><strong>N° Transacción:</strong> Número de referencia del banco.</li>
+                                <li><strong>Tipo:</strong> Enviada (rojo) o Recibida (verde).</li>
+                                <li><strong>Beneficiario / Ordenante:</strong> Quién recibe o envía el dinero.</li>
+                                <li><strong>Monto:</strong> Cantidad transferida.</li>
+                                <li><strong>Moneda:</strong> CUP, USD, EUR o MLC.</li>
+                                <li><strong>Estado:</strong> ⏳ Pendiente (naranja) o ✅ Confirmada (verde).</li>
+                                <li><strong>Fecha Confirmación:</strong> Cuándo se verificó contra el extracto.</li>
+                            </ul>
+                            <div class="placeholder-img">📸 [Captura: tabla de transacciones con diferentes estados y tipos]</div>
+                        </div>
+                    </div>
+
+                    <!-- PASO 6 -->
+                    <div class="step">
+                        <div class="step-number">6</div>
+                        <div class="step-content">
+                            <h4>Exporta tus datos</h4>
+                            <p>En la esquina superior derecha verás dos botones:</p>
+                            <ul style="margin-left: 20px; line-height: 1.8; color: #555;">
+                                <li><strong>📊 Exportar a Excel:</strong> Descarga un archivo .xlsx con las transacciones filtradas.</li>
+                                <li><strong>📄 Exportar a PDF:</strong> Genera un reporte imprimible con encabezado, resumen, tabla y espacio para firma.</li>
+                            </ul>
+                            <div class="info-box">
+                                <strong>💡 Tip:</strong> Los reportes respetan los filtros activos, así que puedes exportar solo el período o tipo que necesites.
+                            </div>
+                            <div class="placeholder-img">📸 [Captura: botones de exportar y ejemplo de PDF generado]</div>
+                        </div>
+                    </div>
+
+                    <a href="/dashboard" class="btn-primary">Ir al Dashboard →</a>
+                </div>
+            </div>
+
+            <!-- ========== ACORDEÓN 3: SUBIR IMAGEN ========== -->
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>📸 Subir Imagen (cuando no llega el mensaje)</span>
+                    <span class="icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="warning-box">
+                        <strong>💡 ¿Cuándo usar esto?</strong> Solo cuando el mensaje de texto no llegó y necesitas capturar la transferencia desde una captura de pantalla.
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>Toma una captura de pantalla clara</h4>
+                            <p>Asegúrate de que el texto sea legible. Evita imágenes borrosas o con poca luz.</p>
+                            <div class="placeholder-img">📸 [Captura: ejemplo de imagen clara vs borrosa]</div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>Sube la imagen</h4>
+                            <p>Ve a <strong>📸 Subir Imagen</strong> y selecciona el archivo desde tu dispositivo.</p>
+                            <div class="placeholder-img">📸 [Captura: botón de subir archivo]</div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>Revisa y corrige los datos</h4>
+                            <p>El sistema extraerá los datos con OCR. Si algún dato está mal (ej: monto 2400 leído como 240), corrígelo manualmente antes de guardar.</p>
+                            <div class="warning-box">
+                                <strong>⚠️ Importante:</strong> Verifica siempre el monto y la fecha. El OCR puede cometer errores con imágenes de baja calidad.
+                            </div>
+                            <div class="placeholder-img">📸 [Captura: formulario de edición post-OCR]</div>
+                        </div>
+                    </div>
+
+                    <a href="/subir-imagen" class="btn-primary">Ir a Subir Imagen →</a>
+                </div>
+            </div>
+
+            <!-- ========== ACORDEÓN 4: CONFIRMAR (Contador) ========== -->
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>✅ Confirmar Transacciones (Solo Contadores)</span>
+                    <span class="icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="info-box">
+                        <strong>💡 ¿Qué es esto?</strong> Cuando revisas el extracto bancario y confirmas que una transferencia ya aparece, la marcas como confirmada en el sistema.
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>Revisa tu extracto bancario</h4>
+                            <p>Ten a mano el extracto (en papel o PDF) que te dio el banco.</p>
+                            <div class="placeholder-img">📸 [Captura: extracto bancario de ejemplo]</div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>Ve a la pantalla de Confirmar</h4>
+                            <p>En el menú superior, haz clic en <strong>✅ Confirmar</strong> (solo visible para contadores y admin).</p>
+                            <div class="placeholder-img">📸 [Captura: enlace en el navbar]</div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>Busca la transacción en la lista</h4>
+                            <p>Verás todas las transferencias pendientes de confirmar. Usa el buscador si tienes muchas.</p>
+                            <div class="placeholder-img">📸 [Captura: lista de transacciones pendientes]</div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>Marca como confirmada</h4>
+                            <p>Si la transacción aparece en tu extracto, haz clic en el botón <strong>Confirmar</strong>. El sistema actualizará el estado a ✅ Confirmada.</p>
+                            <div class="success-box">
+                                <strong>✅ Tip:</strong> La fecha de confirmación se guarda automáticamente para trazabilidad.
+                            </div>
+                            <div class="placeholder-img">📸 [Captura: botón de confirmar y estado actualizado]</div>
+                        </div>
+                    </div>
+
+                    <a href="/confirmar" class="btn-primary" id="btnConfirmarAyuda">Ir a Confirmar →</a>
+                </div>
+            </div>
+
+            <!-- ========== ACORDEÓN 5: EDITAR Y ELIMINAR ========== -->
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>✏️ Editar y 🗑️ Eliminar Transacciones</span>
+                    <span class="icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>Editar una transacción</h4>
+                            <p>Si necesitas corregir un dato (monto, descripción, etc.), ve a <strong>✏️ Editar</strong> y busca la transacción.</p>
+                            <div class="placeholder-img">📸 [Captura: formulario de edición]</div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>Eliminar una transacción</h4>
+                            <p>Si subiste una transacción por error, puedes eliminarla desde <strong>🗑️ Eliminar</strong>.</p>
+                            <div class="warning-box">
+                                <strong>⚠️ Cuidado:</strong> Esta acción no se puede deshacer.
+                            </div>
+                            <div class="placeholder-img">📸 [Captura: confirmación de eliminación]</div>
+                        </div>
+                    </div>
+
+                    <a href="/editar-transaccion" class="btn-primary">Ir a Editar →</a>
+                    <a href="/eliminar-transaccion" class="btn-primary" style="background: #f56565; margin-left: 10px;">Ir a Eliminar →</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Toggle acordeón
+        function toggleAccordion(header) {
+            const content = header.nextElementSibling;
+            const isActive = header.classList.contains('active');
+            
+            if (!isActive) {
+                header.classList.add('active');
+                content.classList.add('active');
+            } else {
+                header.classList.remove('active');
+                content.classList.remove('active');
+            }
+        }
+
+        // Mostrar botones según rol
+        function mostrarBotonesPorRol(rol) {
+            const btnConfirmar = document.getElementById('btnConfirmar');
+            const btnConfirmarAyuda = document.getElementById('btnConfirmarAyuda');
+            const btnAdmin = document.getElementById('btnAdmin');
+            
+            if (btnConfirmar) btnConfirmar.style.display = (rol === 'contador' || rol === 'admin') ? 'inline-block' : 'none';
+            if (btnConfirmarAyuda) btnConfirmarAyuda.style.display = (rol === 'contador' || rol === 'admin') ? 'inline-block' : 'none';
+            if (btnAdmin) btnAdmin.style.display = rol === 'admin' ? 'inline-block' : 'none';
+        }
+
+        // Obtener perfil del usuario
+        const token = localStorage.getItem('token');
+        if (token) {
+            fetch(window.location.origin + '/perfil', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(res => res.json())
+            .then(user => mostrarBotonesPorRol(user.rol))
+            .catch(() => mostrarBotonesPorRol('usuario'));
+        } else {
+            mostrarBotonesPorRol('usuario');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👑 Panel de Administración - Gestor Bancario</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header h1 {
+            color: #1a1a2e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn, .btn-dashboard {
+            background: #f56565;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .btn-dashboard {
+            background: #4299e1;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            color: #666;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+        }
+
+        /* Paneles */
+        .panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .panel.visible {
+            display: block;
+        }
+
+        .panel h2 {
+            color: #1a1a2e;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        /* Formularios */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95em;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Tablas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7em;
+            font-weight: 600;
+        }
+
+        .badge-admin { background: #f56565; color: white; }
+        .badge-contador { background: #ed8936; color: white; }
+        .badge-usuario { background: #48bb78; color: white; }
+
+        .btn-edit {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .btn-edit:hover {
+            background: #3182ce;
+        }
+
+        .btn-delete {
+            background: #f56565;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-container {
+            background: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 25px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .mensaje-flotante {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 1000;
+            animation: fadeInOut 3s ease-in-out;
+        }
+
+        .mensaje-exito {
+            background: #48bb78;
+            color: white;
+        }
+
+        .mensaje-error {
+            background: #f56565;
+            color: white;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(20px); }
+            15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(20px); }
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .tabs {
+                flex-direction: column;
+            }
+            .tab-btn {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <span>👑</span>
+                <span>Panel de Administración</span>
+            </h1>
+            <div class="user-info">
+                <span>👤 <strong id="userName">Cargando...</strong></span>
+                <a href="/dashboard" class="btn-dashboard">📊 Dashboard</a>
+                <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="cambiarTab('usuarios')">👥 Usuarios</button>
+            <button class="tab-btn" onclick="cambiarTab('empresas')">🏢 Empresas</button>
+            <button class="tab-btn" onclick="cambiarTab('crearUsuario')">➕ Nuevo Usuario</button>
+            <button class="tab-btn" onclick="cambiarTab('crearEmpresa')">➕ Nueva Empresa</button>
+        </div>
+
+        <!-- Panel Usuarios (con edición) -->
+        <div id="panelUsuarios" class="panel visible">
+            <h2>👥 Lista de Usuarios</h2>
+            <div class="form-row" style="margin-bottom: 15px;">
+                <div class="form-group">
+                    <label>Filtrar por Empresa</label>
+                    <select id="filtroEmpresa">
+                        <option value="">Todas las empresas</option>
+                    </select>
+                </div>
+                <button class="btn-primary" onclick="cargarUsuarios()">🔍 Filtrar</button>
+            </div>
+            <div id="tablaUsuarios"></div>
+        </div>
+
+        <!-- Panel Empresas -->
+        <div id="panelEmpresas" class="panel">
+            <h2>🏢 Lista de Empresas</h2>
+            <div id="tablaEmpresas"></div>
+        </div>
+
+        <!-- Panel Crear Usuario -->
+        <div id="panelCrearUsuario" class="panel">
+            <h2>➕ Nuevo Usuario</h2>
+            <form id="formCrearUsuario">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email *</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña *</label>
+                        <input type="password" id="password" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre *</label>
+                        <input type="text" id="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Apellido *</label>
+                        <input type="text" id="apellido" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Empresa *</label>
+                        <select id="empresaId" required>
+                            <option value="">Seleccione una empresa</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Rol *</label>
+                        <select id="rol">
+                            <option value="usuario">👤 Usuario (Dependiente)</option>
+                            <option value="contador">✅ Contador</option>
+                            <option value="admin">👑 Administrador</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">Crear Usuario</button>
+            </form>
+            <div id="mensajeCreacion" style="margin-top: 15px;"></div>
+        </div>
+
+        <!-- Panel Crear Empresa -->
+        <div id="panelCrearEmpresa" class="panel">
+            <h2>➕ Nueva Empresa</h2>
+            <form id="formCrearEmpresa">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre *</label>
+                        <input type="text" id="empresaNombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label>NIT *</label>
+                        <input type="text" id="empresaNit" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Dirección</label>
+                        <input type="text" id="empresaDireccion">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="text" id="empresaTelefono">
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">Crear Empresa</button>
+            </form>
+            <div id="mensajeEmpresa" style="margin-top: 15px;"></div>
+        </div>
+    </div>
+
+    <script>
+        const BASE_URL = window.location.origin;
+        let token = null;
+        let user = null;
+
+        // ========== AUTENTICACIÓN ==========
+        function getToken() {
+            const stored = localStorage.getItem('token');
+            if (stored) return stored;
+            const params = new URLSearchParams(window.location.search);
+            const urlToken = params.get('token');
+            if (urlToken) {
+                localStorage.setItem('token', urlToken);
+                return urlToken;
+            }
+            return null;
+        }
+
+        async function getUserProfile() {
+            token = getToken();
+            if (!token) {
+                window.location.href = '/test';
+                return null;
+            }
+
+            try {
+                const response = await fetch(`${BASE_URL}/perfil`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    user = await response.json();
+                    document.getElementById('userName').textContent = `${user.nombre} ${user.apellido}`;
+                    if (user.rol !== 'admin') {
+                        alert('No tienes permisos de administrador');
+                        window.location.href = '/dashboard';
+                    }
+                    return user;
+                } else {
+                    localStorage.removeItem('token');
+                    window.location.href = '/test';
+                    return null;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                window.location.href = '/test';
+                return null;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/test';
+        }
+
+        // ========== CARGAR EMPRESAS ==========
+        async function cargarEmpresas() {
+            try {
+                const response = await fetch(`${BASE_URL}/empresas`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const empresas = await response.json();
+                    mostrarTablaEmpresas(empresas);
+                    actualizarSelectEmpresas(empresas);
+                }
+            } catch (error) {
+                console.error('Error cargando empresas:', error);
+            }
+        }
+
+        function mostrarTablaEmpresas(empresas) {
+            const container = document.getElementById('tablaEmpresas');
+            if (empresas.length === 0) {
+                container.innerHTML = '<div class="empty-message">📭 No hay empresas registradas</div>';
+                return;
+            }
+            let html = `<table><thead><tr><th>ID</th><th>Nombre</th><th>NIT</th><th>Dirección</th><th>Teléfono</th><th>Fecha</th></tr></thead><tbody>`;
+            for (const e of empresas) {
+                html += `<tr><td>${e.id}</td><td><strong>${e.nombre}</strong></td><td>${e.nit}</td><td>${e.direccion || '-'}</td><td>${e.telefono || '-'}</td><td>${new Date(e.fecha_creacion).toLocaleDateString()}</td></tr>`;
+            }
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        function actualizarSelectEmpresas(empresas) {
+            const selectCrear = document.getElementById('empresaId');
+            const selectFiltro = document.getElementById('filtroEmpresa');
+            selectCrear.innerHTML = '<option value="">Seleccione una empresa</option>';
+            selectFiltro.innerHTML = '<option value="">Todas las empresas</option>';
+            for (const e of empresas) {
+                selectCrear.innerHTML += `<option value="${e.id}">${e.nombre} (${e.nit})</option>`;
+                selectFiltro.innerHTML += `<option value="${e.id}">${e.nombre}</option>`;
+            }
+        }
+
+        // ========== CARGAR USUARIOS ==========
+        async function cargarUsuarios() {
+            const empresaId = document.getElementById('filtroEmpresa').value;
+            try {
+                let url = `${BASE_URL}/admin/usuarios`;
+                if (empresaId) url += `?empresa_id=${empresaId}`;
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const usuarios = await response.json();
+                    mostrarTablaUsuarios(usuarios);
+                }
+            } catch (error) {
+                console.error('Error cargando usuarios:', error);
+            }
+        }
+        async function cambiarEstadoUsuario(usuarioId, activar, usuarioEmail) {
+            const accion = activar ? 'reactivar' : 'desactivar';
+            if (!confirm(`¿${activar ? 'Reactivar' : 'Desactivar'} al usuario "${usuarioEmail}"?`)) return;
+            try {
+                const response = await fetch(`${BASE_URL}/admin/usuarios/${usuarioId}/${accion}`, {
+                    method: 'PATCH',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    mostrarMensaje(`✅ Usuario ${usuarioEmail} ${activar ? 'reactivado' : 'desactivado'}`, 'exito');
+                    cargarUsuarios(); // recargar la lista
+                } else {
+                    const error = await response.json();
+                    mostrarMensaje(`❌ Error: ${error.detail}`, 'error');
+                }
+            } catch (error) {
+                mostrarMensaje(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+        function mostrarTablaUsuarios(usuarios) {
+            const container = document.getElementById('tablaUsuarios');
+            if (usuarios.length === 0) {
+                container.innerHTML = '<div class="empty-message">📭 No hay usuarios registrados</div>';
+                return;
+            }
+            let html = `<table><thead><tr><th>ID</th><th>Email</th><th>Nombre</th><th>Apellido</th><th>Empresa</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>`;
+            for (const u of usuarios) {
+                const rolClass = u.rol === 'admin' ? 'badge-admin' : (u.rol === 'contador' ? 'badge-contador' : 'badge-usuario');
+                const rolText = u.rol === 'admin' ? '👑 Admin' : (u.rol === 'contador' ? '✅ Contador' : '👤 Usuario');
+                let estadoAccion = '';
+                if (u.esta_activo) {
+                    estadoAccion = `<button class="btn-desactivar" onclick="cambiarEstadoUsuario(${u.id}, false, '${u.email}')">🔴 Desactivar</button>`;
+                } else {
+                    estadoAccion = `<button class="btn-reactivar" onclick="cambiarEstadoUsuario(${u.id}, true, '${u.email}')">🟢 Reactivar</button>`;
+                }
+                html += `<tr>
+                    <td>${u.id}</td>
+                    <td>${u.email}</td>
+                    <td>${u.nombre}</td>
+                    <td>${u.apellido}</td>
+                    <td>${u.empresa?.nombre || '-'}</td>
+                    <td><span class="badge ${rolClass}">${rolText}</span></td>
+                    <td>${u.esta_activo ? '✅ Activo' : '❌ Inactivo'}</td>
+                    <td><button class="btn-edit" onclick="abrirModalEditar(${u.id})">✏️ Editar</button>
+                    ${estadoAccion}</td>
+                    
+                </tr>`;
+            }
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        // ========== MODAL EDITAR USUARIO ==========
+        let usuarioEditando = null;
+
+        async function abrirModalEditar(usuarioId) {
+            try {
+                // Obtener datos del usuario
+                const response = await fetch(`${BASE_URL}/admin/usuarios?skip=0&limit=1000`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const usuarios = await response.json();
+                const usuario = usuarios.find(u => u.id === usuarioId);
+                if (!usuario) {
+                    mostrarMensaje('Usuario no encontrado', 'error');
+                    return;
+                }
+                usuarioEditando = usuario;
+
+                // Obtener empresas para el select
+                const empresasRes = await fetch(`${BASE_URL}/empresas`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const empresas = await empresasRes.json();
+
+                const modalHtml = `
+                    <div id="modalEditar" class="modal-overlay">
+                        <div class="modal-container">
+                            <div class="modal-header">
+                                <h3>✏️ Editar Usuario: ${usuario.email}</h3>
+                                <button class="close-modal" onclick="cerrarModalEditar()">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label>Email (no editable)</label>
+                                    <input type="email" id="editEmail" value="${usuario.email}" disabled style="background:#f0f0f0;">
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Nombre</label>
+                                        <input type="text" id="editNombre" value="${usuario.nombre}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Apellido</label>
+                                        <input type="text" id="editApellido" value="${usuario.apellido}">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Empresa</label>
+                                        <select id="editEmpresaId">
+                                            ${empresas.map(e => `<option value="${e.id}" ${e.id === usuario.empresa_id ? 'selected' : ''}>${e.nombre}</option>`).join('')}
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Rol</label>
+                                        <select id="editRol">
+                                            <option value="usuario" ${usuario.rol === 'usuario' ? 'selected' : ''}>👤 Usuario</option>
+                                            <option value="contador" ${usuario.rol === 'contador' ? 'selected' : ''}>✅ Contador</option>
+                                            <option value="admin" ${usuario.rol === 'admin' ? 'selected' : ''}>👑 Administrador</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>
+                                        <input type="checkbox" id="editActivo" ${usuario.esta_activo ? 'checked' : ''}>
+                                        Usuario activo (puede iniciar sesión)
+                                    </label>
+                                </div>
+                                <div class="form-group">
+                                    <label>Nueva Contraseña (dejar vacío para no cambiar)</label>
+                                    <input type="password" id="editPassword" placeholder="••••••">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn-primary" onclick="guardarEdicion(${usuario.id})">💾 Guardar Cambios</button>
+                                <button class="btn-primary" style="background:#a0aec0;" onclick="cerrarModalEditar()">Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+            } catch (error) {
+                mostrarMensaje(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        function cerrarModalEditar() {
+            const modal = document.getElementById('modalEditar');
+            if (modal) modal.remove();
+            usuarioEditando = null;
+        }
+
+        async function guardarEdicion(usuarioId) {
+            const datosActualizados = {
+                nombre: document.getElementById('editNombre').value,
+                apellido: document.getElementById('editApellido').value,
+                rol: document.getElementById('editRol').value,
+                empresa_id: parseInt(document.getElementById('editEmpresaId').value),
+                esta_activo: document.getElementById('editActivo').checked
+            };
+            const nuevaPassword = document.getElementById('editPassword').value;
+            if (nuevaPassword) {
+                datosActualizados.password = nuevaPassword;
+            }
+            
+            try {
+                const response = await fetch(`${BASE_URL}/admin/usuarios/${usuarioId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(datosActualizados)
+                });
+                if (response.ok) {
+                    mostrarMensaje('✅ Usuario actualizado correctamente', 'exito');
+                    cerrarModalEditar();
+                    cargarUsuarios();
+                    cargarEmpresas(); // por si cambió empresa
+                } else {
+                    const error = await response.json();
+                    mostrarMensaje(`❌ Error: ${error.detail}`, 'error');
+                }
+            } catch (error) {
+                mostrarMensaje(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // ========== CREAR EMPRESA ==========
+        document.getElementById('formCrearEmpresa').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const empresa = {
+                nombre: document.getElementById('empresaNombre').value,
+                nit: document.getElementById('empresaNit').value,
+                direccion: document.getElementById('empresaDireccion').value,
+                telefono: document.getElementById('empresaTelefono').value
+            };
+            try {
+                const response = await fetch(`${BASE_URL}/empresas`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(empresa)
+                });
+                if (response.ok) {
+                    mostrarMensaje('✅ Empresa creada correctamente', 'exito');
+                    document.getElementById('formCrearEmpresa').reset();
+                    cargarEmpresas();
+                } else {
+                    const error = await response.json();
+                    mostrarMensaje(`❌ Error: ${error.detail}`, 'error');
+                }
+            } catch (error) {
+                mostrarMensaje(`❌ Error: ${error.message}`, 'error');
+            }
+        });
+
+        // ========== CREAR USUARIO ==========
+        document.getElementById('formCrearUsuario').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const usuario = {
+                email: document.getElementById('email').value,
+                nombre: document.getElementById('nombre').value,
+                apellido: document.getElementById('apellido').value,
+                password: document.getElementById('password').value,
+                rol: document.getElementById('rol').value,
+                empresa_id: parseInt(document.getElementById('empresaId').value)
+            };
+            if (!usuario.empresa_id) {
+                mostrarMensaje('❌ Debes seleccionar una empresa', 'error');
+                return;
+            }
+            try {
+                const response = await fetch(`${BASE_URL}/admin/usuarios`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(usuario)
+                });
+                if (response.ok) {
+                    mostrarMensaje('✅ Usuario creado correctamente', 'exito');
+                    document.getElementById('formCrearUsuario').reset();
+                    cargarUsuarios();
+                } else {
+                    const error = await response.json();
+                    mostrarMensaje(`❌ Error: ${error.detail}`, 'error');
+                }
+            } catch (error) {
+                mostrarMensaje(`❌ Error: ${error.message}`, 'error');
+            }
+        });
+
+        // ========== UTILIDADES ==========
+        function mostrarMensaje(mensaje, tipo) {
+            const msgDiv = document.createElement('div');
+            msgDiv.textContent = mensaje;
+            msgDiv.className = `mensaje-flotante mensaje-${tipo === 'exito' ? 'exito' : 'error'}`;
+            document.body.appendChild(msgDiv);
+            setTimeout(() => msgDiv.remove(), 3000);
+        }
+
+        function cambiarTab(tab) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('visible'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            if (tab === 'usuarios') {
+                document.getElementById('panelUsuarios').classList.add('visible');
+                cargarUsuarios();
+            } else if (tab === 'empresas') {
+                document.getElementById('panelEmpresas').classList.add('visible');
+                cargarEmpresas();
+            } else if (tab === 'crearUsuario') {
+                document.getElementById('panelCrearUsuario').classList.add('visible');
+                cargarEmpresas(); // para llenar select de empresas
+            } else if (tab === 'crearEmpresa') {
+                document.getElementById('panelCrearEmpresa').classList.add('visible');
+            }
+            event.target.classList.add('active');
+        }
+
+        // ========== INICIALIZACIÓN ==========
+        async function init() {
+            await getUserProfile();
+            if (user && user.rol === 'admin') {
+                cargarEmpresas();
+                cargarUsuarios();
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
