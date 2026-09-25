@@ -1171,33 +1171,28 @@
                 const usuarioNombre = user ? `${user.nombre} ${user.apellido}` : 'Usuario';
                 const fechaActual = new Date().toLocaleDateString();
 
-                // ============================================================
-                // 🔧 CAMBIO 1: ANCHO REDUCIDO A 780px PARA A4 VERTICAL
-                // ============================================================
-                const ANCHO_PDF = 780;
-
                 // ===== CREAR CONTENIDO PARA PDF =====
                 let htmlContent = `
-                    <div style="padding:15px 18px;font-family:Arial,sans-serif;font-size:10px;background:white;width:${ANCHO_PDF}px;margin:0;border:0;box-sizing:border-box;">
+                    <div style="padding:20px 25px;font-family:Arial,sans-serif;font-size:11px;background:white;width:1100px;margin:0;border:0;">
                         
                         <!-- ENCABEZADO -->
-                        <div style="text-align:center;margin-bottom:15px;">
-                            <h2 style="color:#1e3c72;margin:0 0 5px 0;font-size:18px;font-weight:bold;">
+                        <div style="text-align:center;margin-bottom:18px;">
+                            <h2 style="color:#1e3c72;margin:0 0 5px 0;font-size:20px;font-weight:bold;">
                                 Reporte de Transacciones
                             </h2>
-                            <h3 style="color:#555;margin:0 0 3px 0;font-size:13px;font-weight:normal;">
+                            <h3 style="color:#555;margin:0 0 3px 0;font-size:15px;font-weight:normal;">
                                 ${tipoLabel} - ${periodoTexto}
                             </h3>
-                            <p style="color:#888;margin:0 0 8px 0;font-size:11px;">
+                            <p style="color:#888;margin:0 0 8px 0;font-size:12px;">
                                 📊 Agrupado por: ${agrupacionesTexto}
                             </p>
-                            <p style="margin:0;font-size:10px;color:#666;">
+                            <p style="margin:0;font-size:11px;color:#666;">
                                 Generado el: ${new Date().toLocaleString()}
                             </p>
                         </div>
 
                         <!-- RESUMEN -->
-                        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;background:#f0f0f0;padding:8px 12px;border-radius:6px;margin-bottom:15px;font-size:11px;">
+                        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;background:#f0f0f0;padding:10px 15px;border-radius:6px;margin-bottom:18px;font-size:12px;">
                             <div><strong>📊 Total:</strong> ${transaccionesFiltradas.length}</div>
                             <div><strong>💰 Total ${tipoLabel}:</strong> ${totalMonto.toFixed(2)}</div>
                             <div><strong>⏳ Pendientes:</strong> ${pendientes.length} (${montoPendientes.toFixed(2)})</div>
@@ -1205,50 +1200,54 @@
                         </div>
 
                         <!-- TABLA -->
-                        <table style="width:100%;border-collapse:collapse;border:1px solid #ddd;font-size:9px;table-layout:fixed;">
+                        <table style="width:100%;border-collapse:collapse;border:1px solid #ddd;font-size:10px;table-layout:fixed;">
                             <colgroup>
                                 <col style="width:11%;">
-                                <col style="width:14%;">
-                                <col style="width:8%;">
-                                <col style="width:20%;">
-                                <col style="width:20%;">
-                                <col style="width:11%;">
-                                <col style="width:7%;">
+                                <col style="width:13%;">
                                 <col style="width:9%;">
+                                <col style="width:15%;">
+                                <col style="width:15%;">
+                                <col style="width:10%;">
+                                <col style="width:7%;">
+                                <col style="width:10%;">
+                                <col style="width:10%;">
                             </colgroup>
                             <thead>
                                 <tr>
-                                    <th style="border:1px solid #ddd;padding:5px 3px;background:#f2f2f2;text-align:left;font-weight:bold;font-size:9px;">Fecha</th>
-                                    <th style="border:1px solid #ddd;padding:5px 3px;background:#f2f2f2;text-align:left;font-weight:bold;font-size:9px;">N° Trans.</th>
-                                    <th style="border:1px solid #ddd;padding:5px 3px;background:#f2f2f2;text-align:left;font-weight:bold;font-size:9px;">Tipo</th>
-                                    <th style="border:1px solid #ddd;padding:5px 3px;background:#f2f2f2;text-align:left;font-weight:bold;font-size:9px;">Beneficiario</th>
-                                    <th style="border:1px solid #ddd;padding:5px 3px;background:#f2f2f2;text-align:left;font-weight:bold;font-size:9px;">Ordenante</th>
-                                    <th style="border:1px solid #ddd;padding:5px 3px;background:#f2f2f2;text-align:right;font-weight:bold;font-size:9px;">Monto</th>
-                                    <th style="border:1px solid #ddd;padding:5px 3px;background:#f2f2f2;text-align:left;font-weight:bold;font-size:9px;">Mon.</th>
-                                    <th style="border:1px solid #ddd;padding:5px 3px;background:#f2f2f2;text-align:left;font-weight:bold;font-size:9px;">Estado</th>
+                                    <th style="border:1px solid #ddd;padding:6px 4px;background:#f2f2f2;text-align:left;font-weight:bold;font-size:10px;">Fecha</th>
+                                    <th style="border:1px solid #ddd;padding:6px 4px;background:#f2f2f2;text-align:left;font-weight:bold;font-size:10px;">N° Transacción</th>
+                                    <th style="border:1px solid #ddd;padding:6px 4px;background:#f2f2f2;text-align:left;font-weight:bold;font-size:10px;">Tipo</th>
+                                    <th style="border:1px solid #ddd;padding:6px 4px;background:#f2f2f2;text-align:left;font-weight:bold;font-size:10px;">Beneficiario</th>
+                                    <th style="border:1px solid #ddd;padding:6px 4px;background:#f2f2f2;text-align:left;font-weight:bold;font-size:10px;">Ordenante</th>
+                                    <th style="border:1px solid #ddd;padding:6px 4px;background:#f2f2f2;text-align:right;font-weight:bold;font-size:10px;">Monto</th>
+                                    <th style="border:1px solid #ddd;padding:6px 4px;background:#f2f2f2;text-align:left;font-weight:bold;font-size:10px;">Moneda</th>
+                                    <th style="border:1px solid #ddd;padding:6px 4px;background:#f2f2f2;text-align:left;font-weight:bold;font-size:10px;">Estado</th>
+                                    <th style="border:1px solid #ddd;padding:6px 4px;background:#f2f2f2;text-align:left;font-weight:bold;font-size:10px;">Fecha Confirmación</th>
                                 </tr>
                             </thead>
                             <tbody>
                 `;
 
                 function agregarFilaHTML(t) {
+                    const fechaConfirm = t.fecha_confirmacion ? new Date(t.fecha_confirmacion).toLocaleString() : '-';
                     return `<tr style="page-break-inside:avoid;">
-                        <td style="border:1px solid #ddd;padding:4px 3px;font-size:8px;">${t.fecha || ''}</td>
-                        <td style="border:1px solid #ddd;padding:4px 3px;font-size:8px;word-break:break-all;">${t.numero_transaccion || '-'}</td>
-                        <td style="border:1px solid #ddd;padding:4px 3px;font-size:8px;">${t.tipo === 'enviada' ? 'Env' : 'Rec'}</td>
-                        <td style="border:1px solid #ddd;padding:4px 3px;font-size:8px;word-break:break-word;">${t.beneficiario || '-'}</td>
-                        <td style="border:1px solid #ddd;padding:4px 3px;font-size:8px;word-break:break-word;">${t.ordenante || '-'}</td>
-                        <td style="border:1px solid #ddd;padding:4px 3px;font-size:8px;text-align:right;">${Number(t.monto || 0).toFixed(2)}</td>
-                        <td style="border:1px solid #ddd;padding:4px 3px;font-size:8px;">${t.moneda || ''}</td>
-                        <td style="border:1px solid #ddd;padding:4px 3px;font-size:8px;">${t.estado || ''}</td>
+                        <td style="border:1px solid #ddd;padding:5px 4px;font-size:9px;">${t.fecha || ''}</td>
+                        <td style="border:1px solid #ddd;padding:5px 4px;font-size:9px;">${t.numero_transaccion || '-'}</td>
+                        <td style="border:1px solid #ddd;padding:5px 4px;font-size:9px;">${t.tipo === 'enviada' ? 'Enviada' : 'Recibida'}</td>
+                        <td style="border:1px solid #ddd;padding:5px 4px;font-size:9px;">${t.beneficiario || '-'}</td>
+                        <td style="border:1px solid #ddd;padding:5px 4px;font-size:9px;">${t.ordenante || '-'}</td>
+                        <td style="border:1px solid #ddd;padding:5px 4px;font-size:9px;text-align:right;">${Number(t.monto || 0).toFixed(2)}</td>
+                        <td style="border:1px solid #ddd;padding:5px 4px;font-size:9px;">${t.moneda || ''}</td>
+                        <td style="border:1px solid #ddd;padding:5px 4px;font-size:9px;">${t.estado || ''}</td>
+                        <td style="border:1px solid #ddd;padding:5px 4px;font-size:9px;">${fechaConfirm}</td>
                     </tr>`;
                 }
 
                 function agregarSubtotalHTML(label, monto) {
                     return `<tr style="background-color:#f0f4ff;font-weight:bold;page-break-inside:avoid;">
-                        <td colspan="5" style="background-color:#f0f4ff;font-weight:bold;border:1px solid #ddd;padding:4px 3px;text-align:right;font-size:9px;">📊 ${label}:</td>
-                        <td style="background-color:#f0f4ff;font-weight:bold;border:1px solid #ddd;padding:4px 3px;font-size:9px;text-align:right;">${monto.toFixed(2)}</td>
-                        <td colspan="2" style="background-color:#f0f4ff;font-weight:bold;border:1px solid #ddd;padding:4px 3px;"></td>
+                        <td colspan="5" style="background-color:#f0f4ff;font-weight:bold;border:1px solid #ddd;padding:5px 4px;text-align:right;font-size:10px;">📊 ${label}:</td>
+                        <td style="background-color:#f0f4ff;font-weight:bold;border:1px solid #ddd;padding:5px 4px;font-size:10px;text-align:right;">${monto.toFixed(2)}</td>
+                        <td colspan="3" style="background-color:#f0f4ff;font-weight:bold;border:1px solid #ddd;padding:5px 4px;"></td>
                     </tr>`;
                 }
 
@@ -1306,9 +1305,9 @@
                 // ===== TOTAL GENERAL =====
                 htmlContent += `
                             <tr style="background-color:#e8edff;font-weight:bold;page-break-inside:avoid;">
-                                <td colspan="5" style="background-color:#e8edff;font-weight:bold;border:1px solid #ddd;padding:5px 3px;text-align:right;font-size:11px;">💰 TOTAL ${tipoLabel.toUpperCase()}:</td>
-                                <td style="background-color:#e8edff;font-weight:bold;border:1px solid #ddd;padding:5px 3px;font-size:11px;text-align:right;">${totalMonto.toFixed(2)}</td>
-                                <td colspan="2" style="background-color:#e8edff;font-weight:bold;border:1px solid #ddd;padding:5px 3px;"></td>
+                                <td colspan="5" style="background-color:#e8edff;font-weight:bold;border:1px solid #ddd;padding:6px 4px;text-align:right;font-size:13px;">💰 TOTAL ${tipoLabel.toUpperCase()}:</td>
+                                <td style="background-color:#e8edff;font-weight:bold;border:1px solid #ddd;padding:6px 4px;font-size:13px;text-align:right;">${totalMonto.toFixed(2)}</td>
+                                <td colspan="3" style="background-color:#e8edff;font-weight:bold;border:1px solid #ddd;padding:6px 4px;"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -1316,21 +1315,21 @@
 
                 // ===== FIRMA Y PIE DE PÁGINA =====
                 htmlContent += `
-                    <div style="margin-top:40px;border-top:2px solid #333;padding-top:20px;page-break-inside:avoid;">
+                    <div style="margin-top:50px;border-top:2px solid #333;padding-top:25px;page-break-inside:avoid;">
                         <div style="display:flex;justify-content:space-between;align-items:flex-end;">
-                            <div style="text-align:left;font-size:10px;color:#666;">
-                                <p style="margin:3px 0;">Este documento es un reporte de transacciones</p>
-                                <p style="margin:3px 0;">generado por el sistema Gestor de Transferencias.</p>
-                                <p style="margin:3px 0;font-size:9px;color:#999;">Fecha: ${new Date().toLocaleString()}</p>
+                            <div style="text-align:left;font-size:11px;color:#666;">
+                                <p style="margin:4px 0;">Este documento es un reporte de transacciones</p>
+                                <p style="margin:4px 0;">generado por el sistema Gestor de Transferencias.</p>
+                                <p style="margin:4px 0;font-size:10px;color:#999;">Fecha de generación: ${new Date().toLocaleString()}</p>
                             </div>
                             <div style="text-align:right;">
-                                <p style="margin:3px 0;font-size:12px;">
+                                <p style="margin:4px 0;font-size:13px;">
                                     <span style="font-weight:bold;">Firma:</span> ___________________________ 
                                 </p>
-                                <p style="margin:3px 0;font-size:12px;font-weight:bold;color:#1e3c72;">
+                                <p style="margin:4px 0;font-size:13px;font-weight:bold;color:#1e3c72;">
                                     ${usuarioNombre}
                                 </p>
-                                <p style="margin:3px 0;font-size:11px;color:#666;">
+                                <p style="margin:4px 0;font-size:12px;color:#666;">
                                     ${fechaActual}
                                 </p>
                             </div>
@@ -1348,32 +1347,30 @@
                 // Crear elemento temporal para el PDF
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = htmlContent;
-                tempDiv.style.cssText = `width:${ANCHO_PDF}px;background:white;padding:0;margin:0;border:0;`;
+                tempDiv.style.cssText = 'width:1100px;background:white;padding:0;margin:0;border:0;';
                 document.body.appendChild(tempDiv);
 
                 // ===== ACTUALIZAR MENSAJE =====
                 actualizarMensajeGenerando('⏳ Generando PDF... (2/3) Renderizando');
 
                 // Esperar a que el DOM se actualice
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await new Promise(resolve => setTimeout(resolve, 400));
 
                 // ===== ACTUALIZAR MENSAJE =====
                 actualizarMensajeGenerando('⏳ Generando PDF... (3/3) Creando archivo');
 
-                // ============================================================
-                // 🔧 CAMBIO 2: ORIENTACIÓN PORTRAIT + DIMENSIONES AJUSTADAS
-                // ============================================================
+                // Configuración optimizada para PDF
                 const opt = {
                     margin:        [0.3, 0.3, 0.3, 0.3],
                     filename:     `transacciones_${tipoSeleccionado}_${new Date().toISOString().slice(0,19)}.pdf`,
-                    image:        { type: 'jpeg', quality: 0.95 },
+                    image:        { type: 'jpeg', quality: 0.98 },
                     html2canvas:  { 
-                        scale: 2,
+                        scale: 2.5,
                         useCORS: true, 
                         logging: false,
-                        width: ANCHO_PDF,
+                        width: 1100,
                         height: tempDiv.scrollHeight || 1000,
-                        windowWidth: ANCHO_PDF,
+                        windowWidth: 1100,
                         windowHeight: tempDiv.scrollHeight || 1000,
                         x: 0,
                         y: 0
@@ -1381,16 +1378,17 @@
                     jsPDF:        { 
                         unit: 'in', 
                         format: 'a4', 
-                        orientation: 'portrait'   // 🔧 CAMBIO: VERTICAL para móvil
+                        orientation: 'landscape' 
                     },
                     pagebreak:    { 
-                        mode: ['avoid-all', 'css', 'legacy']
+                        mode: ['avoid-all', 'css', 'legacy'],
+                        after: '.page-break-after'
                     }
                 };
 
                 // Generar PDF con timeout
                 const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Tiempo de espera agotado')), 45000)
+                    setTimeout(() => reject(new Error('Tiempo de espera agotado')), 30000)
                 );
 
                 const pdfPromise = html2pdf().set(opt).from(tempDiv).save();
@@ -1423,6 +1421,7 @@
                     btnPDF.style.opacity = '1';
                     btnPDF.style.cursor = 'pointer';
                 }
+                // Asegurar que el mensaje se oculte
                 setTimeout(ocultarMensajeGenerando, 500);
             }
         }
