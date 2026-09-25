@@ -1097,6 +1097,58 @@
       document.getElementById('democonfirm').scrollIntoView({ behavior: 'smooth' });
     });
   }
+  // obtener cantidad de clientes
+  // --- Cargar número real de clientes desde la BD ---
+async function cargarStatsReales() {
+  const statNumber = document.getElementById('totalClientes');
+  const label = document.getElementById('clientesLabel');
+
+  try {
+    const response = await fetch('/api/stats');
+    if (!response.ok) throw new Error('Error al obtener stats');
+    const data = await response.json();
+
+    if (data.total_clientes > 0) {
+      // Animar el conteo desde 0 hasta el número real
+      animarConteo(statNumber, 0, data.total_clientes, 1200);
+
+      // Ajustar singular/plural
+      if (label) {
+        label.textContent = data.total_clientes === 1
+          ? 'cliente activo'
+          : 'clientes activos';
+      }
+    } else {
+      // Si aún no hay clientes, mostrar algo diferente
+      statNumber.textContent = '🚀';
+      if (label) label.textContent = 'Sé el primero en probarlo';
+    }
+  } catch (error) {
+    console.warn('No se pudieron cargar stats reales, usando fallback:', error);
+    // El HTML ya tiene un número por defecto (4), no hacemos nada
+  }
+}
+
+function animarConteo(elemento, inicio, fin, duracion) {
+  if (!elemento) return;
+  const rango = fin - inicio;
+  const pasos = duracion / 16;
+  const incremento = rango / pasos;
+  let actual = inicio;
+
+  const timer = setInterval(() => {
+    actual += incremento;
+    if (actual >= fin) {
+      actual = fin;
+      clearInterval(timer);
+    }
+    elemento.textContent = Math.floor(actual);
+  }, 16);
+}
+
+// Ejecutar cuando cargue la página
+document.addEventListener('DOMContentLoaded', cargarStatsReales);
+
 </script>
 </body>
 </html>
