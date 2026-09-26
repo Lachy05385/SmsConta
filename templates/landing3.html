@@ -226,6 +226,22 @@
         font-size: 1.8rem;
       }
     }
+    /* Franja de prueba social */
+    .social-proof-bar {
+      background: linear-gradient(90deg, #f0f9ff 0%, #e6f4ea 100%);
+      padding: 24px 0;
+      border-top: 1px solid #e2edf2;
+      border-bottom: 1px solid #e2edf2;
+      margin-bottom: 20px;
+    }
+
+    .social-proof-content {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+    }
     /* clientes  */
     .social-proof-stat {
     display: flex;
@@ -643,12 +659,23 @@
       </div>
     </div>
     </div>
+           </div>
+  </div>
+
+  <!-- FRANJA DE PRUEBA SOCIAL -->
+  <div class="social-proof-bar">
+    <div class="container">
+      <div class="social-proof-content">
         <div class="social-proof-stat">
-            <div class="stat-number" id="totalClientes">4</div>
-            <div class="stat-label">
-            <i class="fas fa-building"></i> 
+          <div class="stat-number" id="totalClientes"></div>
+          <div class="stat-label">
+            <i class="fas fa-building"></i>
             <span id="clientesLabel">clientes activos</span>
+          </div>
         </div>
+      </div>
+    </div>
+  </div>
     </div>
   <!-- Servicio -->
   <div class="container" id="servicio">
@@ -716,8 +743,9 @@
         <div style="background: #fef9e3; border-radius: 16px; padding: 16px; margin-top: 16px; border-left: 4px solid #f4b942;">
           <p style="margin: 0; font-size: 0.95rem;"><i class="fas fa-lightbulb" style="color: #f4b942;"></i> <strong>En resumen:</strong> SmsConta es tu asistente personal para la conciliación bancaria. <strong>No reemplaza la revisión del contador, la hace más rápida y ordenada.</strong></p>
         </div>
+      </div>
     </div>
-
+  </div>
   <!-- Botones para expandir subsecciones -->
   <div class="container" style="text-align: center; padding: 20px 0; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
     <button class="btn-secondary" id="toggleCubaBtn" style="font-size: 1.05rem; padding: 14px 32px;">
@@ -779,8 +807,9 @@
         <h3>Personal</h3>
         <div class="price long-text">$ 15 USD <span>/mes</span></div>
         <ul>
-          <li><i class="fas fa-check-circle"></i> Personal 2 puntos de venta</li>
-          <li><i class="fas fa-check-circle"></i> 50 Transacciones diarias</li>
+          <li><i class="fas fa-check-circle"></i> Personal 3 puntos de venta</li>
+          <li><i class="fas fa-check-circle"></i> Cuenta Contador  </li>
+          <li><i class="fas fa-check-circle"></i> Transacciones ilimitadas</li>
           <li><i class="fas fa-check-circle"></i> Procesamiento básico de textos</li>
           <li><i class="fas fa-check-circle"></i> Módulo de confirmación (manual)</li>
           <li><i class="fas fa-check-circle"></i> OCR + IA avanzada</li>
@@ -792,7 +821,8 @@
         <h3>Básico</h3>
         <div class="price long-text">$ 30 USD <span>/mes</span></div>
         <ul>
-          <li><i class="fas fa-check-circle"></i> Hasta 5 puntos de venta</li>
+          <li><i class="fas fa-check-circle"></i> Hasta 7 puntos de venta</li>
+          <li><i class="fas fa-check-circle"></i> Cuenta Contador  </li>
           <li><i class="fas fa-check-circle"></i> Procesamiento básico de textos</li>
           <li><i class="fas fa-check-circle"></i> Módulo de confirmación (manual)</li>
           <li><i class="fas fa-check-circle"></i> OCR + IA avanzada</li>
@@ -806,6 +836,7 @@
         <div class="price long-text">$ 50 USD <span>/mes</span></div>
         <ul>
           <li><i class="fas fa-check-circle"></i> Transferencias ilimitadas 10 Puntos de venta</li>
+          <li><i class="fas fa-check-circle"></i> Cuenta Contador  </li>
           <li><i class="fas fa-check-circle"></i> Procesamiento básico de textos</li>
           <li><i class="fas fa-check-circle"></i> Módulo de confirmación (manual)</li>
           <li><i class="fas fa-check-circle"></i> OCR + IA avanzada</li>
@@ -1099,56 +1130,56 @@
   }
   // obtener cantidad de clientes
   // --- Cargar número real de clientes desde la BD ---
-async function cargarStatsReales() {
-  const statNumber = document.getElementById('totalClientes');
-  const label = document.getElementById('clientesLabel');
+  async function cargarStatsReales() {
+    const statNumber = document.getElementById('totalClientes');
+    const label = document.getElementById('clientesLabel');
 
-  try {
-    const response = await fetch('/api/stats');
-    if (!response.ok) throw new Error('Error al obtener stats');
-    const data = await response.json();
+    if (!statNumber) {
+      console.warn('No se encontró #totalClientes');
+      return;
+    }
 
-    if (data.total_clientes > 0) {
-      // Animar el conteo desde 0 hasta el número real
-      animarConteo(statNumber, 0, data.total_clientes, 1200);
+    try {
+      const response = await fetch('/api/stats');
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const data = await response.json();
 
-      // Ajustar singular/plural
-      if (label) {
-        label.textContent = data.total_clientes === 1
-          ? 'cliente activo'
-          : 'clientes activos';
+      const total = data.total_clientes ?? 0;
+
+      if (total > 0) {
+        animarConteo(statNumber, 0, total, 1200);
+        if (label) {
+          label.textContent = total === 1 ? 'cliente activo' : 'clientes activos';
+        }
+      } else {
+        statNumber.textContent = '🚀';
+        if (label) label.textContent = 'Sé el primero en probarlo';
       }
-    } else {
-      // Si aún no hay clientes, mostrar algo diferente
-      statNumber.textContent = '🚀';
-      if (label) label.textContent = 'Sé el primero en probarlo';
+    } catch (error) {
+      console.warn('No se pudieron cargar stats reales:', error);
+      // Se queda el "4" del HTML como fallback
     }
-  } catch (error) {
-    console.warn('No se pudieron cargar stats reales, usando fallback:', error);
-    // El HTML ya tiene un número por defecto (4), no hacemos nada
   }
-}
 
-function animarConteo(elemento, inicio, fin, duracion) {
-  if (!elemento) return;
-  const rango = fin - inicio;
-  const pasos = duracion / 16;
-  const incremento = rango / pasos;
-  let actual = inicio;
+  function animarConteo(elemento, inicio, fin, duracion) {
+    const rango = fin - inicio;
+    const pasos = duracion / 16;
+    const incremento = rango / pasos;
+    let actual = inicio;
 
-  const timer = setInterval(() => {
-    actual += incremento;
-    if (actual >= fin) {
-      actual = fin;
-      clearInterval(timer);
-    }
-    elemento.textContent = Math.floor(actual);
-  }, 16);
-}
+    const timer = setInterval(() => {
+      actual += incremento;
+      if (actual >= fin) {
+        actual = fin;
+        clearInterval(timer);
+      }
+      elemento.textContent = Math.floor(actual);
+    }, 16);
+  }
 
-// Ejecutar cuando cargue la página
-document.addEventListener('DOMContentLoaded', cargarStatsReales);
-
+  // Ejecutar al cargar la página
+  cargarStatsReales();
+ 
 </script>
 </body>
 </html>

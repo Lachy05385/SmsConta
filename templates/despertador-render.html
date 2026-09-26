@@ -1,0 +1,151 @@
+/**
+ * Cloudflare Worker - Intermediario "despertador" para Render
+ * 
+ * Función: recibe la petición del usuario. Si el servicio en Render está dormido,
+ * muestra una página de carga personalizada (sin que el usuario vea el interstitial
+ * de Render) y lo despierta en segundo plano. Si ya está despierto, redirige directo.
+ */
+
+// ============================================================
+// CONFIGURACIÓN - Cambia solo estas líneas si migras de servicio
+// ============================================================
+const TARGET_URL = "https://gestion-transferencias-bancarias-2.onrender.com";
+const HEALTH_PATH = "/health"; // Tu endpoint real de health check
+// ============================================================
+
+export default {
+  async fetch(request) {
+    const url = new URL(request.url);
+    const targetUrl = TARGET_URL + url.pathname + url.search;
+
+    // 1. Verificar si el servicio de Render ya está despierto
+    const isAwake = await checkAwake();
+
+    if (isAwake) {
+      // 2a. Ya está despierto: reenviar la petición real y devolver la respuesta
+      return fetch(targetUrl, {
+        method: request.method,
+        headers: request.headers,
+        body: request.body,
+        redirect: "follow"
+      });
+    }
+
+    // 2b. Está dormido: devolver inmediatamente la página de carga personalizada
+    //     y lanzar el despertar en segundo plano (no bloquea la respuesta)
+    wakeUpInBackground();
+
+    return new Response(loadingPage(request.url), {
+      status: 200,
+      headers: { "Content-Type": "text/html; charset=utf-8" }
+    });
+  }
+};
+
+/**
+ * Comprueba si el servicio de Render responde en menos de 5 segundos.
+ * Usa GET (en lugar de HEAD) porque FastAPI no registra HEAD por defecto.
+ */
+async function checkAwake() {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch(TARGET_URL + HEALTH_PATH, {
+      method: "GET",
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    return res.ok || res.status < 500;
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
+ * Despierta el servicio en segundo plano sin bloquear la respuesta al usuario.
+ */
+function wakeUpInBackground() {
+  fetch(TARGET_URL + HEALTH_PATH, { method: "GET" }).catch(() => {});
+}
+
+/**
+ * Página HTML de carga personalizada.
+ * Muestra un mensaje al usuario, y con JavaScript sondea el servicio hasta que esté listo.
+ */
+function loadingPage(originalUrl) {
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iniciando servicio...</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, #0f172a, #1e3a8a);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .box { text-align: center; max-width: 480px; }
+  .spinner {
+    width: 56px; height: 56px;
+    border: 4px solid rgba(255,255,255,.2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    margin: 0 auto 24px;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  h1 { font-size: 1.5rem; margin-bottom: 12px; font-weight: 600; }
+  p { opacity: .85; font-size: 1rem; line-height: 1.6; }
+  .status { margin-top: 24px; font-size: .9rem; opacity: .7; }
+  .error { color: #fca5a5; margin-top: 16px; display: none; }
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="spinner"></div>
+    <h1>Iniciando servicio</h1>
+    <p>Estamos preparando todo para ti. Esto puede tardar unos segundos la primera vez del día.</p>
+    <div class="status" id="status">Conectando...</div>
+    <div class="error" id="error">No se pudo iniciar el servicio. Por favor, recarga la página.</div>
+  </div>
+
+  <script>
+    const TARGET = ${JSON.stringify(originalUrl)};
+    const HEALTH = ${JSON.stringify(TARGET_URL + HEALTH_PATH)};
+    const statusEl = document.getElementById("status");
+    const errorEl = document.getElementById("error");
+    let attempts = 0;
+    const MAX_ATTEMPTS = 30; // 30 * 3s = 90s máximo
+
+    async function check() {
+      attempts++;
+      statusEl.textContent = "Conectando... (intento " + attempts + ")";
+      try {
+        const res = await fetch(HEALTH, { method: "GET", cache: "no-store" });
+        if (res.ok || res.status < 500) {
+          statusEl.textContent = "¡Listo! Redirigiendo...";
+          window.location.href = TARGET;
+          return;
+        }
+      } catch (e) { /* reintentar */ }
+
+      if (attempts >= MAX_ATTEMPTS) {
+        errorEl.style.display = "block";
+        statusEl.style.display = "none";
+        return;
+      }
+      setTimeout(check, 3000);
+    }
+
+    check();
+  </script>
+</body>
+</html>`;
+}
