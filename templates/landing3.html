@@ -1097,7 +1097,7 @@
     };
 
     try {
-      const response = await fetch('/api/contrato', {
+      const response = await fetch('/contrato', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -1140,7 +1140,7 @@
     }
 
     try {
-      const response = await fetch('/api/stats');
+      const response = await fetch('/stats');
       if (!response.ok) throw new Error('HTTP ' + response.status);
       const data = await response.json();
 

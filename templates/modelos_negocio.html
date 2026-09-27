@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¿Por qué elegir un modelo de suscripción?</title>
+<style>
+  :root{
+    --primary:#0f172a;      /* azul muy oscuro - títulos y hero */
+    --accent:#2563eb;       /* azul - botones y acentos */
+    --bg:#f8fafc;           /* gris muy claro - fondo general */
+    --card:#ffffff;         /* blanco - tarjetas */
+    --text:#1e293b;         /* gris oscuro - texto principal */
+    --muted:#475569;        /* gris medio oscuro - texto secundario (mejorado) */
+    --border:#e2e8f0;       /* gris claro - bordes */
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+
+  /* HERO - fondo oscuro, texto blanco: contraste correcto */
+  .hero{
+    background:linear-gradient(135deg,#0f172a,#1e3a8a);
+    color:#fff;
+    padding:96px 0;
+    text-align:center;
+  }
+  .hero h1{font-size:2.6rem;line-height:1.2;margin-bottom:16px;color:#fff;}
+  .hero p{font-size:1.15rem;color:#e2e8f0;max-width:720px;margin:0 auto 28px;}
+  .hero a{
+    background:#fff;color:#1e3a8a;
+    padding:14px 32px;border-radius:8px;
+    text-decoration:none;font-weight:600;display:inline-block;
+  }
+  .hero a:hover{background:#e2e8f0;}
+
+  /* SECCIONES - fondo claro, texto oscuro */
+  section{padding:72px 0;}
+  h2{font-size:1.9rem;color:var(--primary);margin-bottom:12px;}
+  .subtitle{color:var(--muted);margin-bottom:36px;font-size:1.05rem;}
+
+  /* TABLA */
+  .table-wrap{overflow-x:auto;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.06);}
+  table{width:100%;border-collapse:collapse;background:var(--card);min-width:720px;}
+  th,td{padding:18px 20px;text-align:left;border-bottom:1px solid var(--border);}
+  th{background:var(--primary);color:#fff;font-weight:600;}
+  td{color:var(--text);}
+  tbody tr:hover{background:#f1f5f9;}
+  .yes{color:#15803d;font-weight:600;}  /* verde más oscuro para mejor contraste */
+  .no{color:#b91c1c;font-weight:600;}   /* rojo más oscuro */
+  .col-own{background:#eff6ff;}
+
+  /* TARJETAS */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;}
+  .card{background:var(--card);padding:28px;border-radius:12px;
+        box-shadow:0 2px 12px rgba(0,0,0,.05);}
+  .card h3{color:var(--accent);margin-bottom:10px;font-size:1.15rem;}
+  .card p{color:var(--muted);font-size:.95rem;}
+
+  /* PLANES */
+  .plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+         gap:24px;align-items:start;}
+  .plan{background:var(--card);border-radius:14px;padding:32px;
+        box-shadow:0 2px 12px rgba(0,0,0,.06);text-align:center;position:relative;
+        display:flex;flex-direction:column;}
+  .plan.destacado{border:2px solid var(--accent);transform:scale(1.03);}
+  .plan .badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+               background:var(--accent);color:#fff;padding:4px 16px;
+               border-radius:20px;font-size:.8rem;font-weight:600;}
+  .plan h3{font-size:1.3rem;color:var(--primary);}
+  .plan .price{font-size:2.2rem;font-weight:700;color:var(--accent);margin:16px 0 4px;}
+  .plan .price small{font-size:.9rem;color:var(--muted);font-weight:400;}
+  .plan ul{list-style:none;text-align:left;margin:24px 0;flex:1;}
+  .plan li{padding:8px 0;color:var(--muted);font-size:.95rem;}
+  .plan li::before{content:"✓";color:#15803d;font-weight:700;margin-right:10px;}
+  .plan .btn-primary{display:block;background:var(--accent);color:#fff;padding:12px;
+          border-radius:8px;text-decoration:none;font-weight:600;margin-bottom:8px;}
+  .plan .btn-primary:hover{background:#1d4ed8;}
+  .plan .btn-secondary{display:block;background:transparent;color:var(--accent);
+          padding:10px;border-radius:8px;text-decoration:none;font-weight:600;
+          border:1px solid var(--accent);font-size:.9rem;}
+  .plan .btn-secondary:hover{background:#eff6ff;}
+  .nota-precios{text-align:center;color:var(--muted);font-size:.9rem;
+                margin-top:24px;font-style:italic;}
+
+  /* SECCIÓN CON FONDO BLANCO - texto oscuro */
+  .seccion-blanca{background:#fff;}
+  .seccion-blanca h2{color:var(--primary);}
+  .seccion-blanca .subtitle{color:var(--muted);}
+
+  /* FAQ */
+  details{background:var(--card);border-radius:10px;padding:18px 24px;
+          margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.04);}
+  summary{cursor:pointer;font-weight:600;color:var(--primary);}
+  details p{margin-top:12px;color:var(--muted);}
+
+  /* FOOTER */
+  footer{background:var(--primary);color:#cbd5e1;padding:40px 0;text-align:center;
+         font-size:.9rem;}
+  footer a{color:#93c5fd;text-decoration:none;}
+
+  @media (max-width:600px){
+    .hero h1{font-size:2rem;}
+    h2{font-size:1.5rem;}
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="wrap">
+    <h1>¿Comprar un software o suscribirte a un servicio?</h1>
+    <p>Descubre por qué el modelo de suscripción es la forma más inteligente de invertir en tecnología para tu empresa, incluso si tienes el presupuesto para comprar una licencia definitiva.</p>
+    <a href="#" class="js-landing">Ver planes y precios reales</a>
+  </div>
+</header>
+
+<!-- TABLA COMPARATIVA -->
+<section class="wrap">
+  <h2>Comparación honesta de modelos de negocio</h2>
+  <p class="subtitle">Antes de decidir, entiende cómo funciona cada modelo.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Criterio</th>
+          <th>Licencia perpetua (Compra)</th>
+          <th class="col-own">Suscripción (SaaS)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Inversión inicial</td><td>Alta (todo por adelantado)</td><td class="col-own yes">Baja (pago mensual)</td></tr>
+        <tr><td>Actualizaciones y nuevas funciones</td><td class="no">No incluidas (se pagan aparte)</td><td class="col-own yes">Incluidas siempre</td></tr>
+        <tr><td>Mantenimiento y seguridad</td><td class="no">Tu responsabilidad</td><td class="col-own yes">A cargo del proveedor</td></tr>
+        <tr><td>Escalabilidad</td><td>Limitada a lo comprado</td><td class="col-own yes">Crece contigo</td></tr>
+        <tr><td>Acceso desde cualquier lugar</td><td>Depende de la instalación</td><td class="col-own yes">Siempre en la nube</td></tr>
+        <tr><td>Soporte técnico</td><td class="no">Se cobra por incidente</td><td class="col-own yes">Continuo</td></tr>
+        <tr><td>Riesgo de obsolescencia</td><td class="no">Alto</td><td class="col-own yes">Nulo</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- POR QUÉ SAAS -->
+<section class="wrap seccion-blanca">
+  <h2>¿Por qué la suscripción es mejor, incluso si tienes dinero?</h2>
+  <p class="subtitle">No se trata de no poder pagar, se trata de invertir mejor.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>1. Nunca te quedas atrás</h3>
+      <p>Cada mes que pasa, tu sistema mejora. No pagas por una versión congelada en el tiempo.</p>
+    </div>
+    <div class="card">
+      <h3>2. Convierte un gasto enorme en uno manejable</h3>
+      <p>En lugar de desembolsar miles de dólares de golpe, pagas una cuota fija que puedes planificar.</p>
+    </div>
+    <div class="card">
+      <h3>3. Tu dinero trabaja en tu negocio</h3>
+      <p>Lo que no gastas en una licencia lo inviertes en crecer. La tecnología deja de ser un lujo.</p>
+    </div>
+    <div class="card">
+      <h3>4. Siempre tienes soporte</h3>
+      <p>No dependes de encontrar un técnico que sepa del sistema. El proveedor responde por él.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PLANES -->
+<section class="wrap" id="planes">
+  <h2>Planes de suscripción</h2>
+  <p class="subtitle">Elige el plan que mejor se adapte al tamaño de tu operación.</p>
+
+  <div class="plans">
+    <div class="plan">
+      <h3>Básico</h3>
+      <div class="price">$X<small>/mes</small></div>
+      <ul>
+        <li>1 usuario</li>
+        <li>Hasta 200 transacciones/mes</li>
+        <li>Reportes básicos</li>
+        <li>Soporte por correo</li>
+      </ul>
+      <a href="#" class="btn-primary js-landing">Comenzar</a>
+      <a href="#" class="btn-secondary js-landing">Ver detalles reales</a>
+    </div>
+
+    <div class="plan destacado">
+      <span class="badge">Más popular</span>
+      <h3>Profesional</h3>
+      <div class="price">$X<small>/mes</small></div>
+      <ul>
+        <li>Hasta 5 usuarios</li>
+        <li>Transacciones ilimitadas</li>
+        <li>Conciliación bancaria</li>
+        <li>Soporte prioritario</li>
+        <li>Actualizaciones incluidas</li>
+      </ul>
+      <a href="#" class="btn-primary js-landing">Comenzar</a>
+      <a href="#" class="btn-secondary js-landing">Ver detalles reales</a>
+    </div>
+
+    <div class="plan">
+      <h3>Empresarial</h3>
+      <div class="price">$X<small>/mes</small></div>
+      <ul>
+        <li>Usuarios ilimitados</li>
+        <li>API personalizada</li>
+        <li>Integraciones bancarias</li>
+        <li>Gerente de cuenta</li>
+        <li>SLA garantizado</li>
+      </ul>
+      <a href="#" class="btn-primary js-landing">Comenzar</a>
+      <a href="#" class="btn-secondary js-landing">Ver detalles reales</a>
+    </div>
+  </div>
+
+  <p class="nota-precios">Los precios mostrados son referenciales. Consulta los valores actualizados en nuestra página principal.</p>
+</section>
+
+<!-- FAQ -->
+<section class="wrap seccion-blanca">
+  <h2>Preguntas frecuentes</h2>
+  <p class="subtitle">Las dudas más comunes antes de suscribirse.</p>
+
+  <details>
+    <summary>¿Qué pasa si dejo de pagar?</summary>
+    <p>Pierdes el acceso al servicio, pero tus datos se conservan por 30 días para que puedas exportarlos. No hay penalización.</p>
+  </details>
+  <details>
+    <summary>¿Puedo cambiar de plan después?</summary>
+    <p>Sí. Puedes subir o bajar de plan en cualquier momento; el cobro se ajusta proporcionalmente.</p>
+  </details>
+  <details>
+    <summary>¿Necesito instalar algo?</summary>
+    <p>No. Todo funciona en la nube. Solo necesitas un navegador y conexión a internet.</p>
+  </details>
+  <details>
+    <summary>¿Los precios pueden subir?</summary>
+    <p>Te notificaremos con al menos 30 días de anticipación. Tu tarifa actual se respeta mientras mantengas la suscripción activa.</p>
+  </details>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>© 2025 SmsConta. Todos los derechos reservados. · <a href="#" class="js-landing">Ir a la página principal</a></p>
+  </div>
+</footer>
+
+<script>
+  const LANDING_URL = "https://hidden-rain-388b.techsolutionss.workers.dev/landing";
+  document.querySelectorAll(".js-landing").forEach(function(el){
+    el.setAttribute("href", LANDING_URL);
+  });
+</script>
+
+</body>
+</html>
