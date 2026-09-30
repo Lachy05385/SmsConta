@@ -73,8 +73,13 @@ async def ayuda(request: Request):
     return templates.TemplateResponse("ayuda.html", {"request": request})
 
 @app.get("/valor", response_class=HTMLResponse)
-async def ayuda(request: Request):
+async def valor(request: Request):
     return templates.TemplateResponse("valor.html", {"request": request})
+
+@app.get("/info_adicional", response_class=HTMLResponse)
+async def info(request: Request):
+    return templates.TemplateResponse("info_adicional.html", {"request": request})
+
 
 
 
