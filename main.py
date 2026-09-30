@@ -72,6 +72,12 @@ async def landing_page(request: Request):
 async def ayuda(request: Request):
     return templates.TemplateResponse("ayuda.html", {"request": request})
 
+@app.get("/valor", response_class=HTMLResponse)
+async def ayuda(request: Request):
+    return templates.TemplateResponse("valor.html", {"request": request})
+
+
+
 @app.get("/modelo", response_class=HTMLResponse)
 async def info(request: Request):
     return templates.TemplateResponse("modelos_negocio.html", {"request": request})

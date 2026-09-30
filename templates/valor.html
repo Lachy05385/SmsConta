@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💡 El valor de este desarrollo - Gestor Bancario</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(255,255,255,0.98);
+            border-radius: 15px 15px 0 0;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .navbar .logo {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            background: #f0f2f5;
+            color: #333;
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8em;
+            transition: all 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .nav-links a.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        /* Hero */
+        .hero {
+            background: white;
+            padding: 50px 30px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .hero h1 {
+            font-size: 2em;
+            color: #1e3c72;
+            margin-bottom: 15px;
+        }
+
+        .hero p {
+            font-size: 1.05em;
+            color: #666;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        .hero .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        /* Secciones */
+        .section {
+            background: white;
+            padding: 40px 30px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .section:last-child {
+            border-radius: 0 0 15px 15px;
+            border-bottom: none;
+        }
+
+        .section h2 {
+            font-size: 1.5em;
+            color: #1e3c72;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 15px;
+        }
+
+        .section h3 {
+            font-size: 1.1em;
+            color: #333;
+            margin: 25px 0 12px 0;
+        }
+
+        .section p {
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .section ul {
+            margin: 15px 0 15px 25px;
+            color: #555;
+            line-height: 1.9;
+        }
+
+        .section ul li strong {
+            color: #1e3c72;
+        }
+
+        /* Grid de características */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 22px;
+            border: 1px solid #e0e0e0;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.15);
+        }
+
+        .feature-card .icon {
+            font-size: 2em;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .feature-card h4 {
+            color: #1e3c72;
+            margin-bottom: 8px;
+            font-size: 1.05em;
+        }
+
+        .feature-card p {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* Cajas de información */
+        .info-box {
+            background: #ebf8ff;
+            border-left: 4px solid #4299e1;
+            padding: 18px 22px;
+            border-radius: 10px;
+            margin: 20px 0;
+            color: #2b6cb0;
+        }
+
+        .success-box {
+            background: #f0fff4;
+            border-left: 4px solid #48bb78;
+            padding: 18px 22px;
+            border-radius: 10px;
+            margin: 20px 0;
+            color: #276749;
+        }
+
+        .warning-box {
+            background: #fffaf0;
+            border-left: 4px solid #ed8936;
+            padding: 18px 22px;
+            border-radius: 10px;
+            margin: 20px 0;
+            color: #c05621;
+        }
+
+        /* Tabla comparativa */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .comparison-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 14px 18px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .comparison-table th {
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .comparison-table td {
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .comparison-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .comparison-table .highlight {
+            background: #f0fff4;
+            font-weight: 600;
+            color: #276749;
+        }
+
+        /* Stack tecnológico */
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .tech-badge {
+            background: #f0f2f5;
+            border: 1px solid #e0e0e0;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Cierre */
+        .cta-section {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 50px 30px;
+            text-align: center;
+            border-radius: 0 0 15px 15px;
+        }
+
+        .cta-section h2 {
+            color: white;
+            border: none;
+            justify-content: center;
+            font-size: 1.6em;
+            margin-bottom: 15px;
+        }
+
+        .cta-section p {
+            color: rgba(255,255,255,0.9);
+            max-width: 700px;
+            margin: 0 auto 25px auto;
+            font-size: 1.05em;
+            line-height: 1.7;
+        }
+
+        .btn-cta {
+            background: white;
+            color: #1e3c72;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1em;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+
+        .btn-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 650px) {
+            .navbar { flex-direction: column; }
+            .nav-links { justify-content: center; }
+            .hero h1 { font-size: 1.5em; }
+            .section { padding: 30px 20px; }
+            .comparison-table th,
+            .comparison-table td { padding: 10px; font-size: 0.8em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navbar -->
+        <div class="navbar">
+            <div class="logo">
+                <span>🏦</span>
+                <span>Gestor Bancario</span>
+            </div>
+            <div class="nav-links">
+                <a href="/capturar">📱 Capturar</a>
+                <a href="/dashboard">📊 Dashboard</a>
+                <a href="/ayuda">📚 Ayuda</a>
+                <a href="/valor" class="active">💡 Valor</a>
+            </div>
+        </div>
+
+        <!-- Hero -->
+        <div class="hero">
+            <span class="badge">💡 Sobre este desarrollo</span>
+            <h1>Contabilización inteligente de transferencias bancarias</h1>
+            <p>
+                Un sistema que transforma el caos de los mensajes bancarios en información contable clara,
+                auditable y accionable. <strong>No es una API bancaria</strong>: no obtiene saldos ni movimientos
+                de efectivo. Es una herramienta de gestión que organiza, contabiliza y ayuda a conciliar.
+            </p>
+        </div>
+
+        <!-- ¿Qué es y qué NO es? -->
+        <div class="section">
+            <h2>🎯 ¿Qué es exactamente este sistema?</h2>
+
+            <div class="info-box">
+                <strong>✅ Lo que SÍ hace:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Contabiliza y organiza los mensajes de texto bancarios.</li>
+                    <li>Ayuda en la conciliación con el extracto bancario.</li>
+                    <li>Detecta anomalías (pagos que no cuadran, montos inusuales, mensajes sospechosos).</li>
+                    <li>Muestra claramente qué pagos están <strong>pendientes</strong> y cuáles <strong>confirmados</strong>.</li>
+                    <li>Lleva control de qué dependiente o vendedor registró cada transacción.</li>
+                    <li>Analiza cuentas propias y de terceros (cuánto se depositó, a quién se pagó).</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <strong>❌ Lo que NO hace:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>No se conecta directamente al banco.</li>
+                    <li>No obtiene saldos ni movimientos de efectivo en tiempo real.</li>
+                    <li>No reemplaza al extracto bancario oficial.</li>
+                    <li>No procesa automáticamente el extracto (tú lo revisas y marcas).</li>
+                </ul>
+            </div>
+
+            <p>
+                Este sistema parte de una realidad concreta: los bancos cubanos envían mensajes de texto con cada
+                transferencia, pero no ofrecen APIs para consultarlos. Los contadores deben leerlos uno por uno,
+                anotarlos en Excel y luego cruzarlos manualmente con el extracto. Este desarrollo automatiza esa
+                primera parte y asiste en la segunda.
+            </p>
+        </div>
+
+        <!-- Funcionalidades -->
+        <div class="section">
+            <h2>⚙️ Funcionalidades principales</h2>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="icon">📥</span>
+                    <h4>Captura desde mensajes de texto</h4>
+                    <p>Parsea automáticamente el texto bancario y extrae fecha, monto, ordenante, beneficiario, N° de transacción y moneda.</p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="icon">🖼️</span>
+                    <h4>OCR para casos excepcionales</h4>
+                    <p>Cuando el mensaje no llega, permite subir una captura de pantalla. El OCR la procesa y el usuario puede corregir manualmente.</p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="icon">✅</span>
+                    <h4>Confirmación contra extracto</h4>
+                    <p>El contador revisa el extracto bancario y marca manualmente qué transacciones ya aparecen. El sistema actualiza el estado.</p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="icon">🔍</span>
+                    <h4>Detección de anomalías</h4>
+                    <p>Alerta de pagos pendientes por mucho tiempo, montos inusuales o registros que no coinciden con el patrón normal.</p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="icon">👥</span>
+                    <h4>Control por dependiente</h4>
+                    <p>Cada transacción queda asociada al vendedor o dependiente que la registró. Trazabilidad completa.</p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="icon">📊</span>
+                    <h4>Dashboard analítico</h4>
+                    <p>Estadísticas en tiempo real: total enviado, recibido, pendientes, confirmadas. Filtros por fecha, banco, moneda y estado.</p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="icon">📤</span>
+                    <h4>Exportación a Excel y PDF</h4>
+                    <p>Reportes profesionales con subtotales, agrupaciones y espacio para firma del contador.</p>
+                </div>
+
+                <div class="feature-card">
+                    <span class="icon">📱</span>
+                    <h4>Escaneo QR de cédula</h4>
+                    <p>Extrae el nombre del cliente desde el QR del carné de identidad, evitando escritura manual.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Valor diferencial -->
+        <div class="section">
+            <h2>💎 El valor diferencial</h2>
+
+            <h3>1. Resuelve un problema que no tiene solución comercial en Cuba</h3>
+            <p>
+                En el mundo desarrollado, bancos como BBVA o Santander ofrecen APIs (Open Banking) para que
+                sistemas como Xero o QuickBooks hagan conciliación automática. En Cuba no existe nada parecido.
+                Este sistema construye el puente que falta usando los mensajes de texto que <strong>ya llegan</strong>.
+            </p>
+
+            <h3>2. Convierte información dispersa en contabilidad ordenada</h3>
+            <p>
+                Lo que antes era una bandeja de mensajes y una hoja de Excel ahora es una base de datos
+                consultable, filtrable, exportable y auditable. Cada transacción tiene un estado, un responsable
+                y una fecha de confirmación.
+            </p>
+
+            <h3>3. Ahorra tiempo real al contador</h3>
+            <p>
+                La lectura y registro manual de decenas de mensajes diarios se reduce drásticamente. Lo que tomaba
+                2–3 horas puede hacerse en 20–30 minutos, con mayor precisión y menos errores.
+            </p>
+
+            <h3>4. Aporta trazabilidad y control interno</h3>
+            <p>
+                Saber <strong>quién</strong> registró <strong>qué</strong> transacción y <strong>cuándo</strong> es
+                fundamental para negocios con múltiples puntos de venta o vendedores. Este sistema lo resuelve
+                de forma natural.
+            </p>
+
+            <h3>5. Está diseñado para el contexto cubano</h3>
+            <p>
+                No asume APIs bancarias, ni extractos en formatos estructurados, ni conectividad perfecta.
+                Trabaja con lo que hay: mensajes de texto, capturas de pantalla y extractos en PDF o papel.
+            </p>
+        </div>
+
+        <!-- Comparativa -->
+        <div class="section">
+            <h2>🌍 Comparativa: cómo se resuelve este problema en otros contextos</h2>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Aspecto</th>
+                        <th>Internacional (Open Banking)</th>
+                        <th>Método manual en Cuba</th>
+                        <th>Este sistema</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Fuente de datos</strong></td>
+                        <td>API bancaria oficial</td>
+                        <td>Mensajes de texto leídos uno por uno</td>
+                        <td class="highlight">Mensajes de texto parseados automáticamente</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Registro contable</strong></td>
+                        <td>Automático</td>
+                        <td>Excel manual</td>
+                        <td class="highlight">Base de datos estructurada</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Conciliación con extracto</strong></td>
+                        <td>Automática</td>
+                        <td>Manual, revisando fila por fila</td>
+                        <td class="highlight">Asistida: el contador marca y el sistema registra</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Detección de anomalías</strong></td>
+                        <td>Algoritmos automáticos</td>
+                        <td>Depende de la experiencia del contador</td>
+                        <td class="highlight">Alertas configurables</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Trazabilidad por vendedor</strong></td>
+                        <td>Integrado con CRM/ERP</td>
+                        <td>No existe</td>
+                        <td class="highlight">Cada transacción tiene un responsable</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Exportación</strong></td>
+                        <td>Múltiples formatos</td>
+                        <td>Excel básico</td>
+                        <td class="highlight">Excel + PDF profesional con firma</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Costo mensual</strong></td>
+                        <td>USD 500+</td>
+                        <td>0 (pero horas perdidas)</td>
+                        <td class="highlight">Accesible en CUP</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Stack tecnológico -->
+        <div class="section">
+            <h2>🛠️ Tecnologías utilizadas</h2>
+
+            <p>
+                El sistema está construido con herramientas modernas que garantizan rendimiento, validación
+                estricta de datos y facilidad de mantenimiento.
+            </p>
+
+            <div class="tech-stack">
+                <span class="tech-badge">⚡ FastAPI</span>
+                <span class="tech-badge">✅ Pydantic</span>
+                <span class="tech-badge">🗄️ SQLite</span>
+                <span class="tech-badge">🔍 OCR (Tesseract)</span>
+                <span class="tech-badge">📷 html5-qrcode</span>
+                <span class="tech-badge">📊 SheetJS (Excel)</span>
+                <span class="tech-badge">📄 html2pdf.js</span>
+                <span class="tech-badge">🌐 Cloudflare Tunnel</span>
+            </div>
+
+            <h3>¿Por qué estas tecnologías?</h3>
+            <ul>
+                <li><strong>FastAPI:</strong> framework asíncrono de alto rendimiento, ideal para APIs que procesan texto.</li>
+                <li><strong>Pydantic:</strong> validación estricta de datos. Evita que lleguen montos, fechas o números de transacción mal formados a la base de datos.</li>
+                <li><strong>SQLite:</strong> base de datos ligera, portable, sin servidor, perfecta para un sistema que puede correr en una PC modesta.</li>
+                <li><strong>Tesseract OCR:</strong> reconocimiento óptico de caracteres para el pequeño porcentaje de casos donde el mensaje no llega.</li>
+                <li><strong>Cloudflare Tunnel:</strong> expone el sistema con un dominio fijo y HTTPS sin necesidad de abrir puertos ni pagar hosting.</li>
+            </ul>
+
+            <div class="success-box">
+                <strong>💡 Dato técnico:</strong> el uso de <strong>Pydantic</strong> con validación estricta es clave en un contexto
+                donde los mensajes bancarios pueden venir con formatos ligeramente distintos. Pydantic garantiza que
+                los datos lleguen consistentes a la base de datos, evitando errores silenciosos.
+            </div>
+        </div>
+
+        <!-- Cierre -->
+        <div class="cta-section">
+            <h2>🚀 Un puente entre el banco y la contabilidad</h2>
+            <p>
+                Este sistema no pretende reemplazar al banco ni al contador. Pretende ser la herramienta que
+                hace su trabajo más rápido, más ordenado y más seguro, aprovechando lo que ya existe:
+                los mensajes de texto que el banco envía.
+            </p>
+            <a href="/ayuda" class="btn-cta">Ver guía de uso →</a>
+        </div>
+
+    </div>
+</body>
+</html>
