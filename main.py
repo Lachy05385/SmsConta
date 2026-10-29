@@ -1286,7 +1286,7 @@ async def crear_transaccion_desde_imagen(
     tipo: str = Form(...),
     descripcion: Optional[str] = Form(None),
     token: str = Form(...),
-    current_user: models.Usuario = Depends(auth.get_current_active_user),
+    #current_user: models.Usuario = Depends(auth.get_current_active_user),
     
     db: Session = Depends(get_db)
 ):
